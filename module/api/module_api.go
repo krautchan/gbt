@@ -19,14 +19,16 @@ type ircState struct {
 type ModuleApi struct {
 	Config          map[string]interface{}
 	config_filename string
+	mutex           sync.RWMutex
 }
 
 var state = new(ircState)
 
 // Initialises the config map and tries to fill it with values from the given
-// JSON formated file.
+// JSON formated file. The function should not be called within Run because it
+// is not thread save.
 // It returns an error if the file can not be opened or the JSON has a wrong
-// format
+// format.
 func (self *ModuleApi) InitConfig(filename string) (err error) {
 	self.Config = make(map[string]interface{})
 	self.config_filename = filename
@@ -36,6 +38,9 @@ func (self *ModuleApi) InitConfig(filename string) (err error) {
 }
 
 func (self *ModuleApi) GetConfigStringValue(key string) (string, error) {
+	self.mutex.RLock()
+	defer self.mutex.RUnlock()
+
 	value := self.Config[key]
 	if s, ok := value.(string); ok {
 		return s, nil
@@ -45,7 +50,17 @@ func (self *ModuleApi) GetConfigStringValue(key string) (string, error) {
 }
 
 func (self *ModuleApi) GetConfigStringSliceValue(key string) ([]string, error) {
-	value := self.Config[key]
+	self.mutex.RLock()
+	defer self.mutex.RUnlock()
+
+	value, ok := self.Config[key]
+	if !ok {
+		return nil, errors.New("Unknown key")
+	}
+
+	if sl, ok := value.([]string); ok {
+		return sl, nil
+	}
 
 	if sl, ok := value.([]interface{}); ok {
 		ret := make([]string, 0)
@@ -57,10 +72,13 @@ func (self *ModuleApi) GetConfigStringSliceValue(key string) ([]string, error) {
 		return ret, nil
 	}
 
-	return []string{}, errors.New("Value is not a []string")
+	return nil, errors.New("Value is not a []string")
 }
 
 func (self *ModuleApi) SetConfigValue(key string, value interface{}) (err error) {
+	self.mutex.Lock()
+	defer self.mutex.Unlock()
+
 	self.Config[key] = value
 
 	err = config.SaveToFile(self.config_filename, self)

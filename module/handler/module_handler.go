@@ -16,7 +16,8 @@ func NewModuleHandler() *ModuleHandler {
 		module.NewDefaultModule(),
 		module.NewAutoJoinModule(),
 		module.NewUrlModule(),
-		module.NewAdminModule()}, []api.MessageHandler{}}
+		module.NewAdminModule(),
+		module.NewSeenModule()}, []api.MessageHandler{}}
 }
 
 func (self *ModuleHandler) LoadModules() (err error) {
