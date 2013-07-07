@@ -11,19 +11,17 @@ import (
 
 type DefaultModule struct {
 	api.ModuleApi
-	commands map[string]api.CommandExecuter
+	comex []api.CommandExecuter
 }
 
 func NewDefaultModule() *DefaultModule {
-	return &DefaultModule{commands: make(map[string]api.CommandExecuter)}
+	return &DefaultModule{comex: make([]api.CommandExecuter, 0)}
 }
 
 /* CommandMaster Interface */
 
 func (self *DefaultModule) AddCommandExecuter(ec api.CommandExecuter) {
-	for _, v := range ec.GetCommands() {
-		self.commands[v] = ec
-	}
+	self.comex = append(self.comex, ec)
 }
 
 /* Module Interface*/
@@ -73,8 +71,14 @@ func (self *DefaultModule) Run(ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMes
 			msg := strings.Split(ircMsg.GetMessage(), " ")
 
 			if strings.HasPrefix(msg[0], prefix) {
-				if ex, ok := self.commands[msg[0][1:]]; ok {
-					ex.ExecuteCommand(msg[0][1:], msg[1:], ircMsg, c)
+				for i := range self.comex {
+
+					commands := self.comex[i].GetCommands()
+					for j := range commands {
+						if commands[j] == msg[0][1:] {
+							self.comex[i].ExecuteCommand(msg[0][1:], msg[1:], ircMsg, c)
+						}
+					}
 				}
 			}
 		}

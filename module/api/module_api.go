@@ -5,6 +5,8 @@ import (
 	"errors"
 	"github.com/krautchan/gbt/config"
 	"github.com/krautchan/gbt/net/irc"
+	"log"
+	"reflect"
 	"strings"
 	"sync"
 )
@@ -37,16 +39,68 @@ func (self *ModuleApi) InitConfig(filename string) (err error) {
 	return
 }
 
+func (self *ModuleApi) DeleteConfigValue(key string) error {
+	self.mutex.Lock()
+	defer self.mutex.Unlock()
+
+	value, ok := self.Config[key]
+	if !ok {
+		return nil
+	}
+
+	delete(self.Config, key)
+	if err := config.SaveToFile(self.config_filename, self); err != nil {
+		self.Config[key] = value
+		return err
+	}
+
+	return nil
+}
+
+func (self *ModuleApi) GetConfigKeys() []string {
+	self.mutex.RLock()
+	defer self.mutex.RUnlock()
+
+	ret := make([]string, 0)
+
+	for key := range self.Config {
+		ret = append(ret, key)
+	}
+
+	return ret
+}
+
 func (self *ModuleApi) GetConfigStringValue(key string) (string, error) {
 	self.mutex.RLock()
 	defer self.mutex.RUnlock()
 
-	value := self.Config[key]
+	value, ok := self.Config[key]
+	if !ok {
+		return "", errors.New("Unknown Key")
+	}
+
 	if s, ok := value.(string); ok {
 		return s, nil
 	}
 
 	return "", errors.New("Value is not a string")
+}
+
+func (self *ModuleApi) GetConfigMapValue(key string) (map[string]string, error) {
+	self.mutex.RLock()
+	defer self.mutex.RUnlock()
+
+	value, ok := self.Config[key]
+	if !ok {
+		return nil, errors.New("Unknown key")
+	}
+
+	if sl, ok := value.(map[string]string); ok {
+		return sl, nil
+	}
+
+	log.Printf("%v", reflect.TypeOf(value))
+	return nil, errors.New("UWOT?")
 }
 
 func (self *ModuleApi) GetConfigStringSliceValue(key string) ([]string, error) {
@@ -75,15 +129,18 @@ func (self *ModuleApi) GetConfigStringSliceValue(key string) ([]string, error) {
 	return nil, errors.New("Value is not a []string")
 }
 
-func (self *ModuleApi) SetConfigValue(key string, value interface{}) (err error) {
+func (self *ModuleApi) SetConfigValue(key string, value interface{}) error {
 	self.mutex.Lock()
 	defer self.mutex.Unlock()
 
 	self.Config[key] = value
 
-	err = config.SaveToFile(self.config_filename, self)
+	if err := config.SaveToFile(self.config_filename, self); err != nil {
+		delete(self.Config, key)
+		return err
+	}
 
-	return
+	return nil
 }
 
 func (self *ModuleApi) Reply(ircMsg *irc.IrcMessage, str string) *irc.IRCHandlerMessage {
