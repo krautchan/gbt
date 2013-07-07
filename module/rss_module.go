@@ -123,6 +123,7 @@ func (self *RSSModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.I
 				log.Printf("%v", err)
 				return
 			}
+			defer resp.Body.Close()
 
 			var feed RSS
 			dec := xml.NewDecoder(resp.Body)
@@ -136,7 +137,14 @@ func (self *RSSModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.I
 			for i := range feed.Channel {
 				c <- self.Reply(ircMsg, feed.Channel[i].Title)
 				for j := range feed.Channel[i].Item {
-					c <- self.Reply(ircMsg, fmt.Sprintf("Item[%v]: %v - %v", j, feed.Channel[i].Item[j].Title, feed.Channel[i].Item[j].Author))
+					if j >= 5 {
+						return
+					}
+					if feed.Channel[i].Item[j].Author == "" {
+						c <- self.Reply(ircMsg, fmt.Sprintf("Item[%v]: %v", j, feed.Channel[i].Item[j].Title))
+					} else {
+						c <- self.Reply(ircMsg, fmt.Sprintf("Item[%v]: %v - %v", j, feed.Channel[i].Item[j].Title, feed.Channel[i].Item[j].Author))
+					}
 				}
 			}
 		}

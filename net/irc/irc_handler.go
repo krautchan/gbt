@@ -62,7 +62,11 @@ func (self *IRCHandler) HandleIRConn() {
 			case RAW:
 				write <- modMsg.GetMessage()
 			case PRIVMSG:
-				write <- fmt.Sprintf("PRIVMSG %v :%v", modMsg.GetTo(), modMsg.GetMessage())
+				msg := modMsg.GetMessage()
+				if 510 < (len(modMsg.GetTo()) + len(msg) + 11) {
+					msg = msg[:510-(len(modMsg.GetTo())+11)]
+				}
+				write <- fmt.Sprintf("PRIVMSG %v :%v", modMsg.GetTo(), msg)
 			case NICK:
 				write <- fmt.Sprintf("NICK %v", modMsg.GetMessage())
 			case JOIN:
