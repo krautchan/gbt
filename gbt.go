@@ -2,10 +2,10 @@
 package main
 
 import (
-	"dev-urandom.eu/gbt/config"
-	"dev-urandom.eu/gbt/module/handler"
-	"dev-urandom.eu/gbt/net/irc"
 	"fmt"
+	"github.com/krautchan/gbt/config"
+	"github.com/krautchan/gbt/module/handler"
+	"github.com/krautchan/gbt/net/irc"
 )
 
 const CONFIG_FILE = "config.conf"

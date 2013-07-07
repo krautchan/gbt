@@ -2,7 +2,7 @@
 package api
 
 import (
-	"dev-urandom.eu/gbt/net/irc"
+	"github.com/krautchan/gbt/net/irc"
 )
 
 type Module interface {

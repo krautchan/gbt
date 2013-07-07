@@ -2,8 +2,8 @@
 package module
 
 import (
-	"dev-urandom.eu/gbt/module/api"
-	"dev-urandom.eu/gbt/net/irc"
+	"github.com/krautchan/gbt/module/api"
+	"github.com/krautchan/gbt/net/irc"
 	"log"
 	"strings"
 )

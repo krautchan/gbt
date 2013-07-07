@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"dev-urandom.eu/gbt/module"
-	"dev-urandom.eu/gbt/module/api"
-	"dev-urandom.eu/gbt/net/irc"
+	"github.com/krautchan/gbt/module"
+	"github.com/krautchan/gbt/module/api"
+	"github.com/krautchan/gbt/net/irc"
 )
 
 type ModuleHandler struct {

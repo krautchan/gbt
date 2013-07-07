@@ -2,9 +2,9 @@
 package api
 
 import (
-	"dev-urandom.eu/gbt/config"
-	"dev-urandom.eu/gbt/net/irc"
 	"errors"
+	"github.com/krautchan/gbt/config"
+	"github.com/krautchan/gbt/net/irc"
 	"strings"
 	"sync"
 )
