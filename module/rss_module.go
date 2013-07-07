@@ -2,45 +2,13 @@
 package module
 
 import (
-	"encoding/xml"
 	"fmt"
 	"github.com/krautchan/gbt/module/api"
+	"github.com/krautchan/gbt/module/api/rss"
 	"github.com/krautchan/gbt/net/irc"
 	"log"
-	"net/http"
 	"strings"
 )
-
-type RSS struct {
-	Version string    `xml:"version,attr"`
-	Channel []Channel `xml:"channel"`
-}
-
-type Channel struct {
-	Title         string  `xml:"title"`
-	Description   string  `xml:"description"`
-	Link          string  `xml:"link"`
-	LastBuildDate string  `xml:"lastBuildDate"`
-	Generator     string  `xml:"generator"`
-	Image         []Image `xml:"image"`
-	Item          []Item  `xml:"item"`
-}
-
-type Image struct {
-	Url   string `xml:"url"`
-	Title string `xml:"title"`
-	Link  string `xml:"link"`
-}
-
-type Item struct {
-	Title       string  `xml:"title"`
-	Link        string  `xml:"link"`
-	Description string  `xml:"description"`
-	Author      string  `xml:"author"`
-	Category    string  `xml:"category"`
-	PupDate     string  `xml:"pubDate"`
-	Image       []Image `xml:"image"`
-}
 
 type RSSModule struct {
 	api.ModuleApi
@@ -52,26 +20,95 @@ func NewRSSModule() *RSSModule {
 
 func (self *RSSModule) Load() error {
 	self.InitConfig("rss.conf")
+
+	if _, err := self.GetConfigMapValue("feeds"); err != nil {
+		self.SetConfigValue("feeds", make(map[string]string))
+	}
+
 	return nil
 }
 
 func (self *RSSModule) GetCommands() []string {
-	cmd := self.GetConfigKeys()
-	cmd = append(cmd, "rss")
-	cmd = append(cmd, "rss.add")
-	cmd = append(cmd, "rss.del")
-	cmd = append(cmd, "rss.list")
+	feeds, err := self.GetConfigMapValue("feeds")
+	cmd := []string{}
+
+	if err == nil {
+		for key := range feeds {
+			cmd = append(cmd, key)
+		}
+	}
+
+	cmd = append(cmd, "rss", "rss.add", "rss.del", "rss.list", "news", "news.setFile", "news.setUrl")
 
 	return cmd
 }
 
 func (self *RSSModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
-	if url, err := self.GetConfigStringValue(cmd); err == nil {
-		cmd = "rss"
-		params = []string{url}
+	feeds, err := self.GetConfigMapValue("feeds")
+	if err == nil {
+		if url, ok := feeds[cmd]; ok {
+			cmd = "rss"
+			params = []string{url}
+		}
 	}
 
 	switch cmd {
+
+	case "news":
+		if len(params) == 0 {
+			url, err := self.GetConfigStringValue("news.url")
+			if err != nil {
+				return
+			}
+			self.ExecuteCommand("rss", []string{url}, ircMsg, c)
+		} else {
+			msg := strings.Join(params, " ")
+			author := strings.Split(ircMsg.GetFrom(), "!")[0]
+
+			path, err := self.GetConfigStringValue("news.file")
+			if err != nil {
+				return
+			}
+
+			feed, err2 := rss.ParseFromFile(path)
+
+			if err2 != nil {
+				feed = rss.New("News", "", "")
+			}
+			feed.AddItem(msg, "", "", author, "")
+
+			if err := feed.WriteToFile(path); err != nil {
+				log.Printf("%v", err)
+			}
+			c <- self.Reply(ircMsg, "success")
+		}
+	case "news.setFile":
+		if !self.IsIdentified(ircMsg.GetFrom()) {
+			return
+		}
+
+		if len(params) == 0 {
+			return
+		}
+
+		if err := self.SetConfigValue("news.file", params[0]); err != nil {
+			return
+		}
+
+		c <- self.Reply(ircMsg, "success")
+	case "news.setUrl":
+		if !self.IsIdentified(ircMsg.GetFrom()) {
+			return
+		}
+
+		if len(params) == 0 {
+			return
+		}
+
+		if err := self.SetConfigValue("news.url", params[0]); err != nil {
+			return
+		}
+		c <- self.Reply(ircMsg, "success")
 	case "rss.add":
 		if !self.IsIdentified(ircMsg.GetFrom()) {
 			return
@@ -85,11 +122,17 @@ func (self *RSSModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.I
 			return
 		}
 
-		if params[0] == "rss" || params[0] == "rss.add" || params[0] == "rss.del" || params[0] == "rss.list" {
+		if params[0] == "rss" || params[0] == "rss.add" || params[0] == "rss.del" || params[0] == "rss.list" || params[0] == "news" || params[0] == "news.setFile" || params[0] == "news.setUrl" {
 			return
 		}
 
-		if err := self.SetConfigValue(params[0], params[1]); err != nil {
+		feeds, err := self.GetConfigMapValue("feeds")
+		if err != nil {
+			return
+		}
+		feeds[params[0]] = params[1]
+
+		if err := self.SetConfigValue("feeds", feeds); err != nil {
 			return
 		}
 		c <- self.Reply(ircMsg, "success")
@@ -118,32 +161,23 @@ func (self *RSSModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.I
 
 	case "rss":
 		if len(params) > 0 {
-			resp, err := http.Get(params[0])
-			if err != nil {
-				log.Printf("%v", err)
-				return
-			}
-			defer resp.Body.Close()
 
-			var feed RSS
-			dec := xml.NewDecoder(resp.Body)
-
-			err = dec.Decode(&feed)
+			rss, err := rss.ParseFromUrl(params[0])
 			if err != nil {
 				log.Printf("%v", err)
 				return
 			}
 
-			for i := range feed.Channel {
-				c <- self.Reply(ircMsg, feed.Channel[i].Title)
-				for j := range feed.Channel[i].Item {
+			for i := range rss.Channel {
+				c <- self.Reply(ircMsg, rss.Channel[i].Title)
+				for j := range rss.Channel[i].Item {
 					if j >= 5 {
 						return
 					}
-					if feed.Channel[i].Item[j].Author == "" {
-						c <- self.Reply(ircMsg, fmt.Sprintf("Item[%v]: %v", j, feed.Channel[i].Item[j].Title))
+					if rss.Channel[i].Item[j].Author == "" {
+						c <- self.Reply(ircMsg, fmt.Sprintf("Item[%v]: %v", j, rss.Channel[i].Item[j].Title))
 					} else {
-						c <- self.Reply(ircMsg, fmt.Sprintf("Item[%v]: %v - %v", j, feed.Channel[i].Item[j].Title, feed.Channel[i].Item[j].Author))
+						c <- self.Reply(ircMsg, fmt.Sprintf("Item[%v]: %v - %v", j, rss.Channel[i].Item[j].Title, rss.Channel[i].Item[j].Author))
 					}
 				}
 			}

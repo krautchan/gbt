@@ -92,11 +92,22 @@ func (self *ModuleApi) GetConfigMapValue(key string) (map[string]string, error) 
 
 	value, ok := self.Config[key]
 	if !ok {
+		log.Printf("%v", "GetConfigMapValue: Unkown key")
 		return nil, errors.New("Unknown key")
 	}
 
 	if sl, ok := value.(map[string]string); ok {
 		return sl, nil
+	}
+
+	if sl, ok := value.(map[string]interface{}); ok {
+		ret := make(map[string]string)
+		for key := range sl {
+			if s, ok := sl[key].(string); ok {
+				ret[key] = s
+			}
+		}
+		return ret, nil
 	}
 
 	log.Printf("%v", reflect.TypeOf(value))
