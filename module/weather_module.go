@@ -38,6 +38,7 @@ type DisplayLocation struct {
 	Full string `xml:"full"`
 }
 
+// Request weather data from wunderground.
 type WeatherModule struct {
 	api.ModuleApi
 }

@@ -16,6 +16,8 @@ type UrlModule struct {
 	api.ModuleApi
 }
 
+// This module prints the content of the <title> tag of webpages
+// send in a channel back to the channel
 func NewUrlModule() *UrlModule {
 	return &UrlModule{}
 }

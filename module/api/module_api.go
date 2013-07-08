@@ -39,6 +39,8 @@ func (self *ModuleApi) InitConfig(filename string) (err error) {
 	return
 }
 
+// Delete a config value from the config
+// Returns an error if the value can not be deleted
 func (self *ModuleApi) DeleteConfigValue(key string) error {
 	self.mutex.Lock()
 	defer self.mutex.Unlock()
@@ -57,6 +59,7 @@ func (self *ModuleApi) DeleteConfigValue(key string) error {
 	return nil
 }
 
+// Get a list of all keys in the config
 func (self *ModuleApi) GetConfigKeys() []string {
 	self.mutex.RLock()
 	defer self.mutex.RUnlock()
@@ -154,6 +157,8 @@ func (self *ModuleApi) SetConfigValue(key string, value interface{}) error {
 	return nil
 }
 
+// Create a reply to the current message. Depending on the origin it will either be send in a
+// query or to a channel
 func (self *ModuleApi) Reply(ircMsg *irc.IrcMessage, str string) *irc.IRCHandlerMessage {
 	par := ircMsg.GetParams()
 	msg := &irc.IRCHandlerMessage{Numeric: irc.PRIVMSG, Msg: str, To: ""}
@@ -169,30 +174,37 @@ func (self *ModuleApi) Reply(ircMsg *irc.IrcMessage, str string) *irc.IRCHandler
 	return msg
 }
 
+// Create a message that is send "as is" to the server
 func (self *ModuleApi) Raw(msg string) *irc.IRCHandlerMessage {
 	return &irc.IRCHandlerMessage{Numeric: irc.RAW, Msg: msg, To: ""}
 }
 
+// Create a message that is send to a user in a query
 func (self *ModuleApi) Query(to string, msg string) *irc.IRCHandlerMessage {
 	return &irc.IRCHandlerMessage{Numeric: irc.PRIVMSG, Msg: msg, To: to}
 }
 
+// Create a join channel message
 func (self *ModuleApi) Join(channel string) *irc.IRCHandlerMessage {
 	return &irc.IRCHandlerMessage{Numeric: irc.JOIN, Msg: channel, To: ""}
 }
 
+// Create a nick change message
 func (self *ModuleApi) Nick(nick string) *irc.IRCHandlerMessage {
 	return &irc.IRCHandlerMessage{Numeric: irc.NICK, Msg: nick, To: ""}
 }
 
+// Create a PONG message
 func (self *ModuleApi) Pong(ircMsg *irc.IrcMessage, nick string) *irc.IRCHandlerMessage {
 	return &irc.IRCHandlerMessage{Numeric: irc.PONG, Msg: nick + " " + ircMsg.GetMessage(), To: ""}
 }
 
+// Creat a part channel message
 func (self *ModuleApi) Part(channel string) *irc.IRCHandlerMessage {
 	return &irc.IRCHandlerMessage{Numeric: irc.PART, Msg: channel, To: ""}
 }
 
+// Update the the current nickname of the bot
 func (self *ModuleApi) UpdateMyName(name string) {
 	state.mutex.Lock()
 	defer state.mutex.Unlock()
@@ -200,6 +212,7 @@ func (self *ModuleApi) UpdateMyName(name string) {
 	state.myName = name
 }
 
+// Add a identified user
 func (self *ModuleApi) AddIdentified(user string) {
 	state.mutex.Lock()
 	defer state.mutex.Unlock()
@@ -207,6 +220,7 @@ func (self *ModuleApi) AddIdentified(user string) {
 	state.identified = append(state.identified, user)
 }
 
+// Add a channel the bot is currently connected to
 func (self *ModuleApi) AddChannel(channel string) {
 	state.mutex.Lock()
 	defer state.mutex.Unlock()
@@ -214,6 +228,7 @@ func (self *ModuleApi) AddChannel(channel string) {
 	state.myChannels = append(state.myChannels, channel)
 }
 
+// Remove a channel from the current channel list
 func (self *ModuleApi) RemoveChannel(channel string) {
 	state.mutex.Lock()
 	defer state.mutex.Unlock()
@@ -232,6 +247,7 @@ func (self *ModuleApi) RemoveChannel(channel string) {
 
 }
 
+// Test if a user is identified with the bot
 func (self *ModuleApi) IsIdentified(user string) bool {
 	state.mutex.RLock()
 	defer state.mutex.RUnlock()
@@ -245,6 +261,7 @@ func (self *ModuleApi) IsIdentified(user string) bool {
 	return false
 }
 
+// Return a list of channels the bot is currently connected to
 func (self *ModuleApi) GetMyChannels() []string {
 	state.mutex.RLock()
 	defer state.mutex.RUnlock()
@@ -255,6 +272,7 @@ func (self *ModuleApi) GetMyChannels() []string {
 	return ret
 }
 
+// Return the current bot nickname
 func (self *ModuleApi) GetMyName() string {
 	state.mutex.RLock()
 	defer state.mutex.RUnlock()

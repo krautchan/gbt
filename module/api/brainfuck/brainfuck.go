@@ -27,6 +27,8 @@ type BrainfuckInterpreter struct {
 	loop   int
 }
 
+// Create a new BrainfuckInterpreter instance.
+// Takes the the brainfuck source and an input string as parameters
 func NewBrainfuckInterpreter(src string, input string) *BrainfuckInterpreter {
 	return &BrainfuckInterpreter{
 		memory: make([]byte, 256),
@@ -109,6 +111,8 @@ func (self *BrainfuckInterpreter) parseLoop(srcPos int) (int, error) {
 	return 0, errors.New("unclosed loop")
 }
 
+// Run the interpreter
+// Returns the output of the program
 func (self *BrainfuckInterpreter) Start() ([]byte, error) {
 	return self.parseSource(0)
 }

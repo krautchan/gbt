@@ -1,4 +1,4 @@
-//irc_conn.go
+// irc_conn.go
 package irc
 
 import (
@@ -16,6 +16,8 @@ func NewIRConn() *IRConn {
 	return &IRConn{}
 }
 
+// Connect to an IRC Server
+// Takes the server address as parameter
 func (self *IRConn) Dial(host string) error {
 	log.Printf("Connecting to %v...", host)
 	con, err := net.Dial("tcp", host)
@@ -64,14 +66,19 @@ func (self *IRConn) Dial(host string) error {
 	return nil
 }
 
+// Return the channel where all server messages are send to
+// If the connection to the IRC server is lost the channel will be closed
 func (self *IRConn) GetReadChannel() chan string {
 	return self.read
 }
 
+// Messages send to this channel will be send to the IRC server
+// If the connection to the IRC server is lost the channel will be closed
 func (self *IRConn) GetWriteChannel() chan string {
 	return self.write
 }
 
+// Close the connection to the IRC server
 func (self *IRConn) Close() {
 	self.con.Close()
 }
