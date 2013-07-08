@@ -21,7 +21,8 @@ func NewModuleHandler() *ModuleHandler {
 		module.NewRSSModule(),
 		module.NewWeatherModule(),
 		module.NewStatsModule(),
-		module.NewConverterModule()}, []api.MessageHandler{}}
+		module.NewConverterModule(),
+		module.NewBrainfuckModule()}, []api.MessageHandler{}}
 }
 
 func (self *ModuleHandler) LoadModules() (err error) {
