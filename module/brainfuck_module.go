@@ -44,5 +44,7 @@ func (self *BrainfuckModule) ExecuteCommand(cmd string, params []string, ircMsg 
 		return
 	}
 
-	c <- self.Reply(ircMsg, string(output))
+	if len(output) > 0 {
+		c <- self.Reply(ircMsg, string(output))
+	}
 }
