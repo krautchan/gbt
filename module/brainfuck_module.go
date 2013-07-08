@@ -45,6 +45,11 @@ func (self *BrainfuckModule) ExecuteCommand(cmd string, params []string, ircMsg 
 	}
 
 	if len(output) > 0 {
+		for i := range output {
+			if output[i] < 32 {
+				output[i] = 35
+			}
+		}
 		c <- self.Reply(ircMsg, string(output))
 	}
 }
