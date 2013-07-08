@@ -52,6 +52,8 @@ func (self *IRCHandler) HandleIRConn() {
 					time.Sleep(10 * time.Second)
 					self.ircCon = NewIRConn()
 					if err := self.ircCon.Dial(self.server); err == nil {
+						write = self.ircCon.GetWriteChannel()
+						read = self.ircCon.GetReadChannel()
 						break
 					}
 					log.Printf("Retry in 10 seconds")

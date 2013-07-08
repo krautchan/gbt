@@ -50,8 +50,8 @@ func (self *WeatherModule) Load() error {
 	return nil
 }
 
-func (self *WeatherModule) GetCommands() []string {
-	return []string{"weather"}
+func (self *WeatherModule) GetCommands() map[string]string {
+	return map[string]string{"weather": "CITY - Shows you the current weather in CITY"}
 }
 
 func (self *WeatherModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
@@ -62,7 +62,6 @@ func (self *WeatherModule) ExecuteCommand(cmd string, params []string, ircMsg *i
 	s := url.QueryEscape(strings.Join(params, " "))
 
 	resp, err := http.Get(fmt.Sprintf(AUTO_URL, s))
-	println(fmt.Sprintf(AUTO_URL, s))
 	if err != nil {
 		log.Printf("%v", err)
 		return
@@ -96,8 +95,8 @@ func (self *WeatherModule) ExecuteCommand(cmd string, params []string, ircMsg *i
 		return
 	}
 
-	c <- self.Reply(ircMsg, fmt.Sprintf("Weather: %v | %v°C - %v | Wind: %vkph %v | Humidity: %v | Pressure: %vmb",
-		weather.CurrentObservation.DisplayLocation.Full, weather.CurrentObservation.Temp_c, weather.CurrentObservation.Weather,
-		weather.CurrentObservation.Wind_kph, weather.CurrentObservation.Wind_dir, weather.CurrentObservation.Humidity,
-		weather.CurrentObservation.Pressure_mb))
+	c <- self.Reply(ircMsg, fmt.Sprintf("Weather: %v | %v°C(%v°F) - %v | Wind: %vkph %v | Humidity: %v | Pressure: %vmb",
+		weather.CurrentObservation.DisplayLocation.Full, weather.CurrentObservation.Temp_c, weather.CurrentObservation.Temp_f,
+		weather.CurrentObservation.Weather, weather.CurrentObservation.Wind_kph, weather.CurrentObservation.Wind_dir,
+		weather.CurrentObservation.Humidity, weather.CurrentObservation.Pressure_mb))
 }

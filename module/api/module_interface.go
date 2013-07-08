@@ -19,6 +19,6 @@ type CommandMaster interface {
 }
 
 type CommandExecuter interface {
-	GetCommands() []string
+	GetCommands() map[string]string
 	ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage)
 }

@@ -28,8 +28,12 @@ func (self *AdminModule) Load() error {
 	return nil
 }
 
-func (self *AdminModule) GetCommands() []string {
-	return []string{"identify", "nick", "join", "part"}
+func (self *AdminModule) GetCommands() map[string]string {
+	return map[string]string{
+		"identify": "PASSWORD - Authenticate yourself to the bot with PASSWORD",
+		"nick":     "NICKNAME - Change the nickname of the bot to NICKNAME[Authentication required]",
+		"join":     "CHANNEL - Tell the bot to join CHANNEL[Authentication required]",
+		"part":     "CHANNEL- Tell the bot to leave CHANNEL[Authentication required]"}
 }
 
 func (self *AdminModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {

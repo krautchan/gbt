@@ -23,6 +23,8 @@ func parseMessage(msg string) (*IrcMessage, error) {
 				ircMsg.SetNumeric(JOIN)
 			case "PART":
 				ircMsg.SetNumeric(PART)
+			case "KICK":
+				ircMsg.SetNumeric(KICK)
 			case "NICK":
 				ircMsg.SetNumeric(NICK)
 			case "NOTICE":

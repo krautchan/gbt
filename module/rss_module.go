@@ -28,17 +28,22 @@ func (self *RSSModule) Load() error {
 	return nil
 }
 
-func (self *RSSModule) GetCommands() []string {
+func (self *RSSModule) GetCommands() map[string]string {
 	feeds, err := self.GetConfigMapValue("feeds")
-	cmd := []string{}
 
+	cmd := map[string]string{
+		"rss":          "- Print the first items from the given RSS feed",
+		"rss.add":      "COMMAND URL - Add shortcut COMMAND for rss[Authentication required]",
+		"rss.del":      "COMMAND - Delete shortcut COMMAND[Authentication required]",
+		"rss.list":     "- Show available shortcut commands",
+		"news":         "[NEWS] - Show the latest news or post a new NEWS item",
+		"news.setFile": "FILEPATH - Set file where news should be saved[Authentication required]",
+		"news.setUrl":  "URL - Set URL to where to read news from[Authentication required]"}
 	if err == nil {
 		for key := range feeds {
-			cmd = append(cmd, key)
+			cmd[key] = fmt.Sprintf("Params 0: Print news from %v", feeds[key])
 		}
 	}
-
-	cmd = append(cmd, "rss", "rss.add", "rss.del", "rss.list", "news", "news.setFile", "news.setUrl")
 
 	return cmd
 }

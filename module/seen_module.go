@@ -63,8 +63,9 @@ func (self *SeenModule) formatDuration(dur time.Duration) (str string) {
 	return
 }
 
-func (self *SeenModule) GetCommands() []string {
-	return []string{"seen"}
+func (self *SeenModule) GetCommands() map[string]string {
+	return map[string]string{
+		"seen": "NICKNAME - Tells you when NICKNAME was seen the last time by the bot"}
 }
 
 func (self *SeenModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {

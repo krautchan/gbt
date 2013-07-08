@@ -19,7 +19,9 @@ func NewModuleHandler() *ModuleHandler {
 		module.NewAdminModule(),
 		module.NewSeenModule(),
 		module.NewRSSModule(),
-		module.NewWeatherModule()}, []api.MessageHandler{}}
+		module.NewWeatherModule(),
+		module.NewStatsModule(),
+		module.NewConverterModule()}, []api.MessageHandler{}}
 }
 
 func (self *ModuleHandler) LoadModules() (err error) {

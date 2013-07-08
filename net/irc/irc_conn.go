@@ -13,7 +13,7 @@ type IRConn struct {
 }
 
 func NewIRConn() *IRConn {
-	return &IRConn{read: make(chan string), write: make(chan string)}
+	return &IRConn{}
 }
 
 func (self *IRConn) Dial(host string) error {
@@ -26,6 +26,8 @@ func (self *IRConn) Dial(host string) error {
 
 	log.Printf("Connected successfully to %v", host)
 	self.con = con
+	self.write = make(chan string)
+	self.read = make(chan string)
 
 	go func() {
 		reader := bufio.NewReader(con)

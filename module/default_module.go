@@ -74,8 +74,8 @@ func (self *DefaultModule) Run(ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMes
 				for i := range self.comex {
 
 					commands := self.comex[i].GetCommands()
-					for j := range commands {
-						if commands[j] == msg[0][1:] {
+					for key := range commands {
+						if key == msg[0][1:] {
 							self.comex[i].ExecuteCommand(msg[0][1:], msg[1:], ircMsg, c)
 						}
 					}
@@ -87,10 +87,42 @@ func (self *DefaultModule) Run(ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMes
 
 /* CommandExecuter Interface */
 
-func (self *DefaultModule) GetCommands() []string {
-	return []string{"whoami"}
+func (self *DefaultModule) GetCommands() map[string]string {
+	return map[string]string{
+		"whoami": "- Tells you who you are",
+		"help":   "[COMMAND] - Show help"}
 }
 
 func (self *DefaultModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
-	c <- self.Reply(ircMsg, ircMsg.GetFrom())
+	switch cmd {
+	case "whoami":
+		c <- self.Reply(ircMsg, ircMsg.GetFrom())
+	case "help":
+		prefix, err := self.GetConfigStringValue("CmdPrefix")
+		if err != nil {
+			return
+		}
+		if len(params) == 0 {
+			msg := fmt.Sprintf("Type %vhelp [COMMAND] for more - Command list:", prefix)
+
+			for i := range self.comex {
+				cmd := self.comex[i].GetCommands()
+				for key := range cmd {
+					msg += fmt.Sprintf(" %v%v", prefix, key)
+				}
+			}
+
+			c <- self.Reply(ircMsg, msg)
+		} else {
+			for i := range self.comex {
+				cmd := self.comex[i].GetCommands()
+
+				for key := range cmd {
+					if params[0] == key {
+						c <- self.Reply(ircMsg, fmt.Sprintf("%v%v %v", prefix, key, cmd[key]))
+					}
+				}
+			}
+		}
+	}
 }

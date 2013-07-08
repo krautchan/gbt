@@ -30,7 +30,6 @@ func (self *AutoJoinModule) GetHandler() []int {
 }
 
 func (self *AutoJoinModule) Run(ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
-	println(self.GetMyName())
 	channels, _ := self.GetConfigStringSliceValue("channel")
 
 	for i := range channels {
