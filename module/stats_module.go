@@ -58,7 +58,7 @@ func (self *StatsModule) Run(ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessa
 
             t, _ = strconv.Atoi(stats["emo"])
             for _, w := range words {
-                for _, v := range []string{";_;", ":D", ";D", ":)", ";)", ":-D", ";-D", ":-)", ";-D", ":(", ":-("} {
+                for _, v := range []string{";_;", ":D", ";D", ":)", ";)", ":-D", ";-D", ":-)", ";-D", ":(", ":-(", ":3"} {
                     if v == w {
                         t++
                     }

@@ -23,7 +23,8 @@ func NewModuleHandler(serverName string, serverAddr string) *ModuleHandler {
         module.NewWeatherModule(),
         module.NewStatsModule(),
         module.NewConverterModule(),
-        module.NewBrainfuckModule()}, []interfaces.MessageHandler{}}
+        module.NewBrainfuckModule(),
+        module.NewGameModule()}, []interfaces.MessageHandler{}}
 
     state := &interfaces.IrcState{ServerName: serverName,
         ServerAddr: serverAddr,
