@@ -2,17 +2,17 @@ package handler
 
 import (
 	"github.com/krautchan/gbt/module"
-	"github.com/krautchan/gbt/module/api"
+	"github.com/krautchan/gbt/module/api/interfaces"
 	"github.com/krautchan/gbt/net/irc"
 )
 
 type ModuleHandler struct {
-	modules    []api.Module
-	msgHandler []api.MessageHandler
+	modules    []interfaces.Module
+	msgHandler []interfaces.MessageHandler
 }
 
-func NewModuleHandler() *ModuleHandler {
-	return &ModuleHandler{[]api.Module{
+func NewModuleHandler(serverName string, serverAddr string) *ModuleHandler {
+	handler := &ModuleHandler{[]interfaces.Module{
 		module.NewDefaultModule(),
 		module.NewAutoJoinModule(),
 		module.NewUrlModule(),
@@ -22,25 +22,36 @@ func NewModuleHandler() *ModuleHandler {
 		module.NewWeatherModule(),
 		module.NewStatsModule(),
 		module.NewConverterModule(),
-		module.NewBrainfuckModule()}, []api.MessageHandler{}}
+		module.NewBrainfuckModule()}, []interfaces.MessageHandler{}}
+
+	state := &interfaces.IrcState{ServerName: serverName,
+		ServerAddr: serverAddr,
+		MyName:     "",
+		MyChannels: make([]string, 0),
+		Identified: make([]string, 0)}
+	for i := range handler.modules {
+		handler.modules[i].SetState(state)
+	}
+
+	return handler
 }
 
 func (self *ModuleHandler) LoadModules() (err error) {
-	var comMaster api.CommandMaster = nil
+	var comMaster interfaces.CommandMaster = nil
 
 	for i := range self.modules {
 		self.modules[i].Load()
-		if v, ok := self.modules[i].(api.CommandMaster); ok {
+		if v, ok := self.modules[i].(interfaces.CommandMaster); ok {
 			comMaster = v
 		}
-		if v, ok := self.modules[i].(api.MessageHandler); ok {
+		if v, ok := self.modules[i].(interfaces.MessageHandler); ok {
 			self.msgHandler = append(self.msgHandler, v)
 		}
 	}
 
 	if comMaster != nil {
 		for i := range self.modules {
-			if v, ok := self.modules[i].(api.CommandExecuter); ok {
+			if v, ok := self.modules[i].(interfaces.CommandExecuter); ok {
 				comMaster.AddCommandExecuter(v)
 			}
 		}

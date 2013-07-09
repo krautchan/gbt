@@ -4,6 +4,7 @@ package irc
 import (
 	"fmt"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -30,7 +31,8 @@ func (self *IRCHandler) SetServer(server string) error {
 	return nil
 }
 
-func (self *IRCHandler) HandleIRConn() {
+func (self *IRCHandler) HandleIRConn(wgr *sync.WaitGroup) {
+	defer wgr.Done()
 	write := self.ircCon.GetWriteChannel()
 	read := self.ircCon.GetReadChannel()
 	mod := make(chan *IRCHandlerMessage)

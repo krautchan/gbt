@@ -1,12 +1,23 @@
-// module_interface.go
-package api
+// module_interfaces.go
+package interfaces
 
 import (
 	"github.com/krautchan/gbt/net/irc"
+	"sync"
 )
+
+type IrcState struct {
+	ServerName string
+	ServerAddr string
+	MyName     string
+	MyChannels []string
+	Identified []string
+	Mutex      sync.RWMutex
+}
 
 type Module interface {
 	Load() error
+	SetState(state *IrcState)
 }
 
 type MessageHandler interface {

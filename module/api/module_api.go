@@ -4,6 +4,7 @@ package api
 import (
 	"errors"
 	"github.com/krautchan/gbt/config"
+	"github.com/krautchan/gbt/module/api/interfaces"
 	"github.com/krautchan/gbt/net/irc"
 	"log"
 	"reflect"
@@ -11,20 +12,18 @@ import (
 	"sync"
 )
 
-type ircState struct {
-	myName     string
-	myChannels []string
-	identified []string
-	mutex      sync.RWMutex
-}
-
 type ModuleApi struct {
 	Config          map[string]interface{}
 	config_filename string
+	server          string
+	state           *interfaces.IrcState
 	mutex           sync.RWMutex
 }
 
-var state = new(ircState)
+// Set global irc state
+func (self *ModuleApi) SetState(state *interfaces.IrcState) {
+	self.state = state
+}
 
 // Initialises the config map and tries to fill it with values from the given
 // JSON formated file. The function should not be called within Run because it
@@ -33,9 +32,10 @@ var state = new(ircState)
 // format.
 func (self *ModuleApi) InitConfig(filename string) (err error) {
 	self.Config = make(map[string]interface{})
-	self.config_filename = filename
+	self.config_filename = self.state.ServerName + "/" + filename
 
-	err = config.LoadFromFile(filename, self)
+	config.CreateConfigPath(self.state.ServerName)
+	err = config.LoadFromFile(self.config_filename, self)
 	return
 }
 
@@ -164,11 +164,11 @@ func (self *ModuleApi) Reply(ircMsg *irc.IrcMessage, str string) *irc.IRCHandler
 	msg := &irc.IRCHandlerMessage{Numeric: irc.PRIVMSG, Msg: str, To: ""}
 
 	if len(par) < 1 {
-		msg.SetTo(ircMsg.GetFrom())
+		msg.SetTo(strings.Split(ircMsg.GetFrom(), "!")[0])
 	} else if strings.HasPrefix(par[0], "&") || strings.HasPrefix(par[0], "#") {
 		msg.SetTo(par[0])
 	} else {
-		msg.SetTo(ircMsg.GetFrom())
+		msg.SetTo(strings.Split(ircMsg.GetFrom(), "!")[0])
 	}
 
 	return msg
@@ -181,7 +181,7 @@ func (self *ModuleApi) Raw(msg string) *irc.IRCHandlerMessage {
 
 // Create a message that is send to a user in a query
 func (self *ModuleApi) Query(to string, msg string) *irc.IRCHandlerMessage {
-	return &irc.IRCHandlerMessage{Numeric: irc.PRIVMSG, Msg: msg, To: to}
+	return &irc.IRCHandlerMessage{Numeric: irc.PRIVMSG, Msg: msg, To: strings.Split(to, "!")[0]}
 }
 
 // Create a join channel message
@@ -206,53 +206,53 @@ func (self *ModuleApi) Part(channel string) *irc.IRCHandlerMessage {
 
 // Update the the current nickname of the bot
 func (self *ModuleApi) UpdateMyName(name string) {
-	state.mutex.Lock()
-	defer state.mutex.Unlock()
+	self.state.Mutex.Lock()
+	defer self.state.Mutex.Unlock()
 
-	state.myName = name
+	self.state.MyName = name
 }
 
 // Add a identified user
 func (self *ModuleApi) AddIdentified(user string) {
-	state.mutex.Lock()
-	defer state.mutex.Unlock()
+	self.state.Mutex.Lock()
+	defer self.state.Mutex.Unlock()
 
-	state.identified = append(state.identified, user)
+	self.state.Identified = append(self.state.Identified, user)
 }
 
 // Add a channel the bot is currently connected to
 func (self *ModuleApi) AddChannel(channel string) {
-	state.mutex.Lock()
-	defer state.mutex.Unlock()
+	self.state.Mutex.Lock()
+	defer self.state.Mutex.Unlock()
 
-	state.myChannels = append(state.myChannels, channel)
+	self.state.MyChannels = append(self.state.MyChannels, channel)
 }
 
 // Remove a channel from the current channel list
 func (self *ModuleApi) RemoveChannel(channel string) {
-	state.mutex.Lock()
-	defer state.mutex.Unlock()
+	self.state.Mutex.Lock()
+	defer self.state.Mutex.Unlock()
 
 	i := 0
-	for ; i < len(state.myChannels); i++ {
-		if state.myChannels[i] == channel {
+	for ; i < len(self.state.MyChannels); i++ {
+		if self.state.MyChannels[i] == channel {
 			break
 		}
 	}
 
-	if i < len(state.myChannels) {
-		state.myChannels[i] = state.myChannels[len(state.myChannels)-1]
-		state.myChannels = state.myChannels[0 : len(state.myChannels)-1]
+	if i < len(self.state.MyChannels) {
+		self.state.MyChannels[i] = self.state.MyChannels[len(self.state.MyChannels)-1]
+		self.state.MyChannels = self.state.MyChannels[0 : len(self.state.MyChannels)-1]
 	}
 
 }
 
 // Test if a user is identified with the bot
 func (self *ModuleApi) IsIdentified(user string) bool {
-	state.mutex.RLock()
-	defer state.mutex.RUnlock()
+	self.state.Mutex.RLock()
+	defer self.state.Mutex.RUnlock()
 
-	for _, v := range state.identified {
+	for _, v := range self.state.Identified {
 		if user == v {
 			return true
 		}
@@ -263,19 +263,19 @@ func (self *ModuleApi) IsIdentified(user string) bool {
 
 // Return a list of channels the bot is currently connected to
 func (self *ModuleApi) GetMyChannels() []string {
-	state.mutex.RLock()
-	defer state.mutex.RUnlock()
+	self.state.Mutex.RLock()
+	defer self.state.Mutex.RUnlock()
 
-	ret := make([]string, len(state.myChannels))
-	copy(ret, state.myChannels)
+	ret := make([]string, len(self.state.MyChannels))
+	copy(ret, self.state.MyChannels)
 
 	return ret
 }
 
 // Return the current bot nickname
 func (self *ModuleApi) GetMyName() string {
-	state.mutex.RLock()
-	defer state.mutex.RUnlock()
+	self.state.Mutex.RLock()
+	defer self.state.Mutex.RUnlock()
 
-	return state.myName
+	return self.state.MyName
 }

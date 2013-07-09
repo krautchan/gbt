@@ -4,6 +4,7 @@ package module
 import (
 	"fmt"
 	"github.com/krautchan/gbt/module/api"
+	"github.com/krautchan/gbt/module/api/interfaces"
 	"github.com/krautchan/gbt/net/irc"
 	"log"
 	"strings"
@@ -11,16 +12,16 @@ import (
 
 type DefaultModule struct {
 	api.ModuleApi
-	comex []api.CommandExecuter
+	comex []interfaces.CommandExecuter
 }
 
 func NewDefaultModule() *DefaultModule {
-	return &DefaultModule{comex: make([]api.CommandExecuter, 0)}
+	return &DefaultModule{comex: make([]interfaces.CommandExecuter, 0)}
 }
 
 /* CommandMaster Interface */
 
-func (self *DefaultModule) AddCommandExecuter(ec api.CommandExecuter) {
+func (self *DefaultModule) AddCommandExecuter(ec interfaces.CommandExecuter) {
 	self.comex = append(self.comex, ec)
 }
 

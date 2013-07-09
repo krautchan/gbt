@@ -29,6 +29,10 @@ func init() {
 	}
 }
 
+func CreateConfigPath(path string) {
+	os.MkdirAll(conf_dir+path, 0775)
+}
+
 func LoadFromFile(filename string, v interface{}) error {
 	path := conf_dir + filename
 	fd, err := os.Open(path)

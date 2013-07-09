@@ -24,6 +24,7 @@ func NewUrlModule() *UrlModule {
 
 func (self *UrlModule) Load() error {
 	if err := self.InitConfig("url.conf"); err != nil {
+		self.SetConfigValue("run", "true")
 		err = self.SetConfigValue("prefix", "URL: ")
 		return err
 	}
@@ -33,7 +34,11 @@ func (self *UrlModule) Load() error {
 }
 
 func (self *UrlModule) GetHandler() []int {
-	return []int{irc.PRIVMSG}
+	if v, _ := self.GetConfigStringValue("run"); v == "true" {
+		return []int{irc.PRIVMSG}
+	}
+
+	return []int{}
 }
 
 func (self *UrlModule) Run(ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
