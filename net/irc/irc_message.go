@@ -2,58 +2,58 @@
 package irc
 
 import (
-	"fmt"
+    "fmt"
 )
 
 type IrcMessage struct {
-	from    string
-	numeric int
-	params  []string
-	msg     string
+    from    string
+    numeric int
+    params  []string
+    msg     string
 }
 
 func NewIrcMessage() *IrcMessage {
-	return &IrcMessage{params: make([]string, 0, 5)}
+    return &IrcMessage{params: make([]string, 0, 5)}
 }
 
 func (self IrcMessage) GetFrom() string {
-	return self.from
+    return self.from
 }
 
 func (self IrcMessage) GetNumeric() int {
-	return self.numeric
+    return self.numeric
 }
 
 func (self IrcMessage) GetParams() []string {
-	return self.params
+    return self.params
 }
 
 func (self IrcMessage) GetMessage() string {
-	return self.msg
+    return self.msg
 }
 
 func (self *IrcMessage) SetFrom(from string) {
-	self.from = from
+    self.from = from
 }
 
 func (self *IrcMessage) SetNumeric(num int) {
-	self.numeric = num
+    self.numeric = num
 }
 
 func (self *IrcMessage) AddParam(param string) {
-	self.params = append(self.params, param)
+    self.params = append(self.params, param)
 }
 
 func (self *IrcMessage) SetParams(params ...string) {
-	for _, v := range params {
-		self.params = append(self.params, v)
-	}
+    for _, v := range params {
+        self.params = append(self.params, v)
+    }
 }
 
 func (self *IrcMessage) SetMessage(msg string) {
-	self.msg = msg
+    self.msg = msg
 }
 
 func (self *IrcMessage) String() string {
-	return fmt.Sprintf("%v %v %v %v", self.from, self.numeric, self.params, self.msg)
+    return fmt.Sprintf("%v %v %v %v", self.from, self.numeric, self.params, self.msg)
 }

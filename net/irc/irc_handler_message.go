@@ -1,35 +1,35 @@
 package irc
 
 type IRCHandlerMessage struct {
-	Numeric int
-	Msg     string
-	To      string
+    Numeric int
+    Msg     string
+    To      string
 }
 
 func NewIRCHandlerMessage() *IRCHandlerMessage {
-	return &IRCHandlerMessage{Numeric: -1}
+    return &IRCHandlerMessage{Numeric: -1}
 }
 
 func (self IRCHandlerMessage) GetNumeric() int {
-	return self.Numeric
+    return self.Numeric
 }
 
 func (self IRCHandlerMessage) GetMessage() string {
-	return self.Msg
+    return self.Msg
 }
 
 func (self IRCHandlerMessage) GetTo() string {
-	return self.To
+    return self.To
 }
 
 func (self *IRCHandlerMessage) SetNumeric(num int) {
-	self.Numeric = num
+    self.Numeric = num
 }
 
 func (self *IRCHandlerMessage) SetMessage(msg string) {
-	self.Msg = msg
+    self.Msg = msg
 }
 
 func (self *IRCHandlerMessage) SetTo(to string) {
-	self.To = to
+    self.To = to
 }
