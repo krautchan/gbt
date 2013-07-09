@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+// Parse an message send by an IRC server
+// Incomplete https://www.ietf.org/rfc/rfc2812.txt
 func parseMessage(msg string) (*IrcMessage, error) {
 	sl := strings.Fields(msg)
 	ircMsg := NewIrcMessage()
@@ -23,6 +25,8 @@ func parseMessage(msg string) (*IrcMessage, error) {
 				ircMsg.SetNumeric(JOIN)
 			case "PART":
 				ircMsg.SetNumeric(PART)
+			case "QUIT":
+				ircMsg.SetNumeric(QUIT)
 			case "KICK":
 				ircMsg.SetNumeric(KICK)
 			case "NICK":

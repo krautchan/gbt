@@ -3,6 +3,7 @@ package irc
 //thanks to https://www.alien.net.au/irc/irc2numerics.html
 
 const (
+	QUIT          = -10
 	KICK          = -9
 	PONG          = -8
 	RAW           = -7
