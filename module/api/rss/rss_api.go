@@ -1,4 +1,8 @@
 // rss_api.go
+
+/*
+Package to parse and create RSS-Feeds
+*/
 package rss
 
 import (
@@ -84,8 +88,8 @@ func New(title string, description string, link string) *Rss {
 	return rss
 }
 
+// Add a new Item to the feed
 func (rss *Rss) AddItem(title string, link string, description string, author string, category string) {
-	//s = append(s, T{}); copy(s[1:], s); s[0] = prefix
 	item := Item{
 		Title:       title,
 		Link:        link,
@@ -95,12 +99,13 @@ func (rss *Rss) AddItem(title string, link string, description string, author st
 		PupDate:     time.Now().Format(time.RFC822Z),
 		Image:       make([]Image, 0)}
 
-	//prepend
+	//prepend s = append(s, T{}); copy(s[1:], s); s[0] = prefix
 	rss.Channel[0].Item = append(rss.Channel[0].Item, Item{})
 	copy(rss.Channel[0].Item[1:], rss.Channel[0].Item)
 	rss.Channel[0].Item[0] = item
 }
 
+// Writes the data in RSS 2.0 format to a given file
 func (rss *Rss) WriteToFile(path string) error {
 	rss.Channel[0].LastBuildDate = time.Now().Format(time.RFC822Z)
 	file, err := os.Create(path)

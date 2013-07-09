@@ -2,81 +2,75 @@
 package module
 
 import (
-	"github.com/krautchan/gbt/module/api"
-	"github.com/krautchan/gbt/net/irc"
-	"html"
-	"io/ioutil"
-	"log"
-	"net/http"
-	"regexp"
-	"strings"
+    "github.com/krautchan/gbt/module/api"
+    "github.com/krautchan/gbt/net/irc"
+    "html"
+    "io/ioutil"
+    "log"
+    "net/http"
+    "regexp"
+    "strings"
 )
 
 type UrlModule struct {
-	api.ModuleApi
+    api.ModuleApi
 }
 
 // This module prints the content of the <title> tag of webpages
 // send in a channel back to the channel
 func NewUrlModule() *UrlModule {
-	return &UrlModule{}
+    return &UrlModule{}
 }
 
 func (self *UrlModule) Load() error {
-	if err := self.InitConfig("url.conf"); err != nil {
-		self.SetConfigValue("run", "true")
-		err = self.SetConfigValue("prefix", "URL: ")
-		return err
-	}
+    if err := self.InitConfig("url.conf"); err != nil {
+        self.SetConfigValue("run", "true")
+        err = self.SetConfigValue("prefix", "URL: ")
+        return err
+    }
 
-	log.Printf("Loaded UrlModule")
-	return nil
+    log.Printf("Loaded UrlModule")
+    return nil
 }
 
 func (self *UrlModule) GetHandler() []int {
-	if v, _ := self.GetConfigStringValue("run"); v == "true" {
-		return []int{irc.PRIVMSG}
-	}
+    if v, _ := self.GetConfigStringValue("run"); v == "true" {
+        return []int{irc.PRIVMSG}
+    }
 
-	return []int{}
+    return []int{}
 }
 
 func (self *UrlModule) Run(ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
-	if len(ircMsg.GetParams()) < 1 {
-		return
-	}
 
-	if strings.HasPrefix(ircMsg.GetMessage(), "http://") {
-		url := strings.Split(ircMsg.GetMessage(), " ")[0]
-		prefix, _ := self.GetConfigStringValue("prefix")
+    if strings.HasPrefix(ircMsg.GetMessage(), "http://") || strings.HasPrefix(ircMsg.GetMessage(), "https://") {
+        url := strings.Split(ircMsg.GetMessage(), " ")[0]
+        prefix, _ := self.GetConfigStringValue("prefix")
 
-		resp, err := http.Head(url)
-		if err != nil {
-			return
-		}
+        resp, err := http.Head(url)
+        if err != nil {
+            return
+        }
 
-		if !strings.Contains(resp.Header.Get("Content-Type"), "text/html") {
-			return
-		}
+        if !strings.Contains(resp.Header.Get("Content-Type"), "text/html") {
+            return
+        }
 
-		resp, err = http.Get(url)
-		if err != nil {
-			return
-		}
-		defer resp.Body.Close()
+        resp, err = http.Get(url)
+        if err != nil {
+            return
+        }
+        defer resp.Body.Close()
 
-		b, e := ioutil.ReadAll(resp.Body)
-		if e != nil {
-			return
-		}
+        b, err := ioutil.ReadAll(resp.Body)
+        if err != nil {
+            return
+        }
 
-		rx, re := regexp.Compile(`<title>(.*)</title>`)
-		if re != nil {
-			return
-		}
-		sl := rx.FindStringSubmatch(string(b))
-		if len(sl) > 1 {
-			c <- self.Reply(ircMsg, prefix+html.UnescapeString(sl[1]))
-		}
-	}
+        rx, _ := regexp.Compile(`<title>(.*)</title>`)
+        sl := rx.FindStringSubmatch(string(b))
+        if len(sl) > 1 {
+            c <- self.Reply(ircMsg, prefix+html.UnescapeString(sl[1]))
+        }
+    }
 }

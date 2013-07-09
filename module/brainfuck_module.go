@@ -2,54 +2,66 @@
 package module
 
 import (
-	"fmt"
-	"github.com/krautchan/gbt/module/api"
-	"github.com/krautchan/gbt/module/api/brainfuck"
-	"github.com/krautchan/gbt/net/irc"
+    "fmt"
+    "github.com/krautchan/gbt/module/api"
+    "github.com/krautchan/gbt/module/api/brainfuck"
+    "github.com/krautchan/gbt/net/irc"
+    "strings"
 )
 
 type BrainfuckModule struct {
-	api.ModuleApi
+    api.ModuleApi
 }
 
 func NewBrainfuckModule() *BrainfuckModule {
-	return &BrainfuckModule{}
+    return &BrainfuckModule{}
 }
 
 func (self *BrainfuckModule) Load() error {
-	return nil
+    return nil
 }
 
 func (self *BrainfuckModule) GetCommands() map[string]string {
-	return map[string]string{
-		"bf": "SOURCE [INPUT] - Runs the given Brainfuck SOURCE with the given INPUT"}
+    return map[string]string{
+        "bf":      "SOURCE [INPUT] - Runs the given Brainfuck SOURCE with the given INPUT",
+        "bf.dump": "SOURCE [INPUT] - Give memory dump of programm"}
 }
 
 func (self *BrainfuckModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
-	if len(params) == 0 {
-		return
-	}
+    if len(params) == 0 {
+        return
+    }
 
-	source := params[0]
-	input := ""
+    source := params[0]
+    input := ""
 
-	if len(params) > 1 {
-		input = params[1]
-	}
+    if len(params) > 1 {
+        input = strings.Join(params[1:], " ")
+    }
 
-	bf := brainfuck.NewBrainfuckInterpreter(source, input)
-	output, err := bf.Start()
-	if err != nil {
-		c <- self.Reply(ircMsg, fmt.Sprintf("Error: %v", err.Error()))
-		return
-	}
+    bf := brainfuck.NewBrainfuckInterpreter(source, input)
+    output, err := bf.Start()
+    if err != nil {
+        pos, mem := bf.DumpMemory()
+        c <- self.Reply(ircMsg, fmt.Sprintf("Pointer: %v; Dump: %v", pos, mem))
+        c <- self.Reply(ircMsg, fmt.Sprintf("Error: %v", err.Error()))
+        return
+    }
 
-	if len(output) > 0 {
-		for i := range output {
-			if output[i] < 32 {
-				output[i] = 35
-			}
-		}
-		c <- self.Reply(ircMsg, string(output))
-	}
+    if len(output) > 0 {
+        /*msg := ""
+          for i := range output {
+              if output[i] < 32 {
+                  msg += "\"
+                  output[i] = 35
+              }
+          }
+        */
+        c <- self.Reply(ircMsg, fmt.Sprintf("%q", output))
+    }
+
+    if cmd == "bf.dump" {
+        pos, mem := bf.DumpMemory()
+        c <- self.Reply(ircMsg, fmt.Sprintf("Pointer: %v; Dump: %v", pos, mem))
+    }
 }
