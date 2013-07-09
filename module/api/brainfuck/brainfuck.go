@@ -26,6 +26,9 @@ func (self *BrainfuckError) Error() string {
     return fmt.Sprintf("Error at source pos: %v Message: %v", self.srcPos, self.msg)
 }
 
+const MAX_LOOPS = 350000
+const MAX_MEMSIZE = 1000
+
 /*
 https://en.wikipedia.org/wiki/Brainfuck
 
@@ -57,7 +60,7 @@ func NewBrainfuckInterpreter(src string, input string) *BrainfuckInterpreter {
 
 func (self *BrainfuckInterpreter) parseSource(srcPos int) ([]byte, error) {
     self.loop++
-    if self.loop > 350000 {
+    if self.loop > MAX_LOOPS {
         return nil, NewBrainfuckError(srcPos, "Too many loops")
     }
 
@@ -68,6 +71,9 @@ func (self *BrainfuckInterpreter) parseSource(srcPos int) ([]byte, error) {
         case ">":
             self.pos++
             if self.pos >= len(self.memory) {
+                if len(self.memory) >= MAX_MEMSIZE {
+                    return nil, NewBrainfuckError(srcPos, "Memory limit reached")
+                }
                 self.memory = append(self.memory, 0)
             }
         case "<":
