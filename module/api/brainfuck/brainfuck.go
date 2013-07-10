@@ -44,7 +44,7 @@ https://en.wikipedia.org/wiki/Brainfuck
 type BrainfuckInterpreter struct {
     memory []byte
     pos    int
-    src    []string
+    src    string
     input  *strings.Reader
     loop   int
 }
@@ -54,7 +54,7 @@ type BrainfuckInterpreter struct {
 func NewBrainfuckInterpreter(src string, input string) *BrainfuckInterpreter {
     return &BrainfuckInterpreter{
         memory: make([]byte, 1),
-        pos:    0, src: strings.Split(src, ""),
+        pos:    0, src: src,
         input: strings.NewReader(input)}
 }
 
@@ -68,7 +68,7 @@ func (self *BrainfuckInterpreter) parseSource(srcPos int) ([]byte, error) {
 
     for i := srcPos; i < len(self.src); i++ {
         switch self.src[i] {
-        case ">":
+        case '>':
             self.pos++
             if self.pos >= len(self.memory) {
                 if len(self.memory) >= MAX_MEMSIZE {
@@ -76,23 +76,23 @@ func (self *BrainfuckInterpreter) parseSource(srcPos int) ([]byte, error) {
                 }
                 self.memory = append(self.memory, 0)
             }
-        case "<":
+        case '<':
             self.pos--
             if self.pos < 0 {
                 return nil, NewBrainfuckError(srcPos, "Negative postion")
             }
-        case "+":
+        case '+':
             self.memory[self.pos]++
-        case "-":
+        case '-':
             self.memory[self.pos]--
-        case ".":
+        case '.':
             output = append(output, self.memory[self.pos])
-        case ",":
+        case ',':
             // Leave cell untouched when input is EOF, like the original implementation of Urban Müller
             if b, err := self.input.ReadByte(); err == nil {
                 self.memory[self.pos] = b
             }
-        case "[":
+        case '[':
             if self.memory[self.pos] != 0 {
                 ret, err := self.parseSource(i + 1)
                 if err != nil {
@@ -101,39 +101,29 @@ func (self *BrainfuckInterpreter) parseSource(srcPos int) ([]byte, error) {
                 output = append(output, ret...)
                 i--
             } else {
-                next, err := self.parseLoop(i)
-                if err != nil {
-                    return nil, err
+                depth := 0
+                for j := i; j < len(self.src); j++ {
+                    switch self.src[j] {
+                    case '[':
+                        depth++
+                    case ']':
+                        depth--
+                    }
+                    if depth == 0 {
+                        i = j
+                        break
+                    }
                 }
-                i = next
+                if depth != 0 {
+                    return nil, NewBrainfuckError(srcPos, "Unclosed loop")
+                }
             }
-        case "]":
+        case ']':
             return output, nil
         }
     }
 
     return output, nil
-}
-
-func (self *BrainfuckInterpreter) parseLoop(srcPos int) (int, error) {
-    if self.src[srcPos] != "[" {
-        return 0, nil
-    }
-
-    depth := 0
-    for i := srcPos; i < len(self.src); i++ {
-        switch self.src[i] {
-        case "[":
-            depth++
-        case "]":
-            depth--
-        }
-        if depth == 0 {
-            return i, nil
-        }
-    }
-
-    return 0, NewBrainfuckError(srcPos, "Unclosed loop")
 }
 
 // Returns the current position and a snapshot of the memory
