@@ -35,13 +35,13 @@ func (self *GameModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.
             return
         }
 
-        c <- self.Reply(ircMsg, answer[rand.Intn(1)])
+        c <- self.Reply(ircMsg, answer[rand.Intn(2)])
     case "choice":
         if len(params) < 2 {
             return
         }
 
-        c <- self.Reply(ircMsg, params[rand.Intn(1)])
+        c <- self.Reply(ircMsg, params[rand.Intn(2)])
     case "8ball":
         if len(params) == 0 {
             return
@@ -69,6 +69,6 @@ func (self *GameModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.
             "Cannot predict now",
             "Ask again later"}
 
-        c <- self.Reply(ircMsg, answers[rand.Intn(len(answers)-1)])
+        c <- self.Reply(ircMsg, answers[rand.Intn(len(answers))])
     }
 }
