@@ -20,7 +20,7 @@ func NewAdminModule() *AdminModule {
 
 func (self *AdminModule) Load() error {
     if err := self.InitConfig(CONFIG_FILE); err != nil {
-        err = self.SetConfigValue("password", "XXXXXXXXXX")
+        self.SetConfigValue("password", "XXXXXXXXXX")
         return err
     }
 

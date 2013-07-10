@@ -59,6 +59,10 @@ func (self *DefaultModule) Run(ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMes
         if strings.HasPrefix(ircMsg.GetFrom(), self.GetMyName()+"!") {
             self.AddChannel(ircMsg.GetMessage())
         }
+
+        if strings.HasPrefix(ircMsg.GetFrom(), "AlphaBernd!") {
+            self.Reply(ircMsg, "What is thy bidding, my master?") // Star Wars für den Endsieg
+        }
     case irc.PART:
         if strings.HasPrefix(ircMsg.GetFrom(), self.GetMyName()+"!") {
             self.RemoveChannel(ircMsg.GetParams()[0])
