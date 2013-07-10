@@ -10,6 +10,7 @@ import (
     "reflect"
     "strings"
     "sync"
+    "time"
 )
 
 type ModuleApi struct {
@@ -194,12 +195,12 @@ func (self *ModuleApi) Nick(nick string) *irc.IRCHandlerMessage {
     return &irc.IRCHandlerMessage{Numeric: irc.NICK, Msg: nick, To: ""}
 }
 
-// Create a PONG message
+// Pong creates a PONG message
 func (self *ModuleApi) Pong(ircMsg *irc.IrcMessage, nick string) *irc.IRCHandlerMessage {
     return &irc.IRCHandlerMessage{Numeric: irc.PONG, Msg: nick + " " + ircMsg.GetMessage(), To: ""}
 }
 
-// Creat a part channel message
+// Part exits a channel
 func (self *ModuleApi) Part(channel string) *irc.IRCHandlerMessage {
     return &irc.IRCHandlerMessage{Numeric: irc.PART, Msg: channel, To: ""}
 }
@@ -278,4 +279,12 @@ func (self *ModuleApi) GetMyName() string {
     defer self.state.Mutex.RUnlock()
 
     return self.state.MyName
+}
+
+// Schedule a function to be run after the given amount of seconds
+func (self *ModuleApi) Schedule(f func(), sec int) {
+    go func(f func(), sec int) {
+        time.Sleep(time.Duration(sec) * time.Second)
+        f()
+    }(f, sec)
 }
