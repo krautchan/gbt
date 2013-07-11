@@ -32,13 +32,12 @@ func (self *ModuleApi) SetState(state *interfaces.IrcState) {
 // is not thread save.
 // It returns an error if the file can not be opened or the JSON has a wrong
 // format.
-func (self *ModuleApi) InitConfig(filename string) (err error) {
+func (self *ModuleApi) InitConfig(filename string) error {
     self.Config = make(map[string]interface{})
     self.config_filename = self.state.ServerName + "/" + filename
 
     config.CreateConfigPath(self.state.ServerName)
-    err = config.LoadFromFile(self.config_filename, self)
-    return
+    return config.LoadFromFile(self.config_filename, self)
 }
 
 // Delete a config value from the config

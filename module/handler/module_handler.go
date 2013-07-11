@@ -43,7 +43,12 @@ func (self *ModuleHandler) LoadModules() (err error) {
     var comMaster interfaces.CommandMaster = nil
 
     for i := range self.modules {
-        self.modules[i].Load()
+        if err := self.modules[i].Load(); err != nil {
+            log.Printf("Error loading module: %v", err)
+            self.modules[i] = nil
+            continue
+        }
+
         if v, ok := self.modules[i].(interfaces.CommandMaster); ok {
             comMaster = v
         }
@@ -54,6 +59,9 @@ func (self *ModuleHandler) LoadModules() (err error) {
 
     if comMaster != nil {
         for i := range self.modules {
+            if self.modules[i] == nil {
+                continue
+            }
             if v, ok := self.modules[i].(interfaces.CommandExecuter); ok {
                 comMaster.AddCommandExecuter(v)
             }

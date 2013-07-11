@@ -21,8 +21,13 @@ func NewBrainfuckModule() *BrainfuckModule {
 
 func (self *BrainfuckModule) Load() error {
     if err := self.InitConfig("brainfuck.db"); err != nil {
-        self.SetConfigValue("cache", make(map[string]string))
-        self.SetConfigValue("var", make(map[string]string))
+        if err := self.SetConfigValue("cache", make(map[string]string)); err != nil {
+            return err
+        }
+
+        if err := self.SetConfigValue("var", make(map[string]string)); err != nil {
+            return err
+        }
     }
     return nil
 }

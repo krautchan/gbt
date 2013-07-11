@@ -18,8 +18,9 @@ func NewAutoJoinModule() *AutoJoinModule {
 
 func (self *AutoJoinModule) Load() error {
     if err := self.InitConfig("channel.conf"); err != nil {
-        err = self.SetConfigValue("channel", []string{"#test"})
-        return err
+        if err := self.SetConfigValue("channel", []string{"#test"}); err != nil {
+            return err
+        }
     }
 
     log.Printf("Loaded AutoJoinModule")

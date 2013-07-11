@@ -25,9 +25,12 @@ func NewUrlModule() *UrlModule {
 
 func (self *UrlModule) Load() error {
     if err := self.InitConfig("url.conf"); err != nil {
-        self.SetConfigValue("run", "true")
-        err = self.SetConfigValue("prefix", "URL: ")
-        return err
+        if err := self.SetConfigValue("run", "true"); err != nil {
+            return err
+        }
+        if err := self.SetConfigValue("prefix", "URL: "); err != nil {
+            return err
+        }
     }
 
     log.Printf("Loaded UrlModule")

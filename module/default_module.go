@@ -30,13 +30,19 @@ func (self *DefaultModule) AddCommandExecuter(ec interfaces.CommandExecuter) {
 
 func (self *DefaultModule) Load() error {
     if err := self.InitConfig("gbt.conf"); err != nil {
-        self.SetConfigValue("Nickname", "gbt")
-        self.SetConfigValue("Username", "gbt")
-        self.SetConfigValue("Realname", "gbt")
-        self.SetConfigValue("CmdPrefix", "&")
-        return err
+        if err := self.SetConfigValue("Nickname", "gbt"); err != nil {
+            return err
+        }
+        if err := self.SetConfigValue("Username", "gbt"); err != nil {
+            return err
+        }
+        if err := self.SetConfigValue("Realname", "gbt"); err != nil {
+            return err
+        }
+        if err := self.SetConfigValue("CmdPrefix", "&"); err != nil {
+            return err
+        }
     }
-
     log.Printf("Loaded DefaultModule")
     return nil
 }

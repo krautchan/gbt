@@ -21,8 +21,9 @@ func NewAdminModule() *AdminModule {
 
 func (self *AdminModule) Load() error {
     if err := self.InitConfig(CONFIG_FILE); err != nil {
-        self.SetConfigValue("password", "XXXXXXXXXX")
-        return err
+        if err := self.SetConfigValue("password", "XXXXXXXXXX"); err != nil {
+            return err
+        }
     }
 
     log.Printf("Loaded AdminModule")
