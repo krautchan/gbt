@@ -38,7 +38,7 @@ func (self *AdminModule) GetCommands() map[string]string {
         "part":     "CHANNEL- Tell the bot to leave CHANNEL[Authentication required]"}
 }
 
-func (self *AdminModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
+func (self *AdminModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
     switch cmd {
     case "identify":
         if self.IsIdentified(ircMsg.GetFrom()) {

@@ -23,7 +23,7 @@ type Module interface {
 
 type MessageHandler interface {
     GetHandler() []int
-    Run(ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage)
+    Run(ircMsg *irc.IrcMessage, c chan irc.ClientMessage)
 }
 
 type CommandMaster interface {
@@ -32,5 +32,5 @@ type CommandMaster interface {
 
 type CommandExecuter interface {
     GetCommands() map[string]string
-    ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage)
+    ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan irc.ClientMessage)
 }

@@ -29,7 +29,7 @@ func (self *StatsModule) GetHandler() []int {
     return []int{irc.PRIVMSG, irc.KICK, irc.JOIN, irc.PART}
 }
 
-func (self *StatsModule) Run(ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
+func (self *StatsModule) Run(ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
     nick := strings.Split(ircMsg.GetFrom(), "!")[0]
     stats, err := self.GetConfigMapValue(nick)
     if err != nil {
@@ -75,7 +75,7 @@ func (self *StatsModule) GetCommands() map[string]string {
         "stats": "[NICKNAME] - Show stats overall stats or stats for NICKNAME"}
 }
 
-func (self *StatsModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
+func (self *StatsModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
     if len(params) == 0 {
 
         max := func(name1 string, no1 string, name2 string, no2 string) (string, string) {

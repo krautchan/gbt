@@ -49,7 +49,7 @@ func (self *RSSModule) GetCommands() map[string]string {
     return cmd
 }
 
-func (self *RSSModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
+func (self *RSSModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
     feeds, err := self.GetConfigMapValue("feeds")
     if err == nil {
         if url, ok := feeds[cmd]; ok {

@@ -1,15 +1,19 @@
-//irc_handler.go
+// irc_handler.go
+//
+// "THE PIZZA-WARE LICENSE" (derived from "THE BEER-WARE LICENCE"):
+// <whoami@dev-urandom.eu> wrote these files. As long as you retain this notice
+// you can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a pizza in return.
+
 package irc
 
 import (
-    "fmt"
     "log"
-    "sync"
     "time"
 )
 
 type IRCMessageHandler interface {
-    RunHandler(ircMsg *IrcMessage, c chan *IRCHandlerMessage)
+    RunHandler(ircMsg *IrcMessage, c chan ClientMessage)
 }
 
 type IRCHandler struct {
@@ -31,11 +35,10 @@ func (self *IRCHandler) SetServer(server string) error {
     return nil
 }
 
-func (self *IRCHandler) HandleIRConn(wgr *sync.WaitGroup) {
-    defer wgr.Done()
+func (self *IRCHandler) HandleIRConn() {
     write := self.ircCon.GetWriteChannel()
     read := self.ircCon.GetReadChannel()
-    mod := make(chan *IRCHandlerMessage)
+    mod := make(chan ClientMessage)
 
     for {
         select {
@@ -62,26 +65,7 @@ func (self *IRCHandler) HandleIRConn(wgr *sync.WaitGroup) {
                 }
             }
         case modMsg := <-mod:
-            switch modMsg.GetNumeric() {
-            case RAW:
-                write <- modMsg.GetMessage()
-            case PRIVMSG:
-                msg := modMsg.GetMessage()
-                if 510 < (len(modMsg.GetTo()) + len(msg) + 11) {
-                    msg = msg[:510-(len(modMsg.GetTo())+11)]
-                }
-                write <- fmt.Sprintf("PRIVMSG %v :%v", modMsg.GetTo(), msg)
-            case NICK:
-                write <- fmt.Sprintf("NICK %v", modMsg.GetMessage())
-            case JOIN:
-                write <- fmt.Sprintf("JOIN %v", modMsg.GetMessage())
-            case PART:
-                write <- fmt.Sprintf("PART %v", modMsg.GetMessage())
-            case PONG:
-                write <- fmt.Sprintf("PONG %v", modMsg.GetMessage())
-            default:
-                log.Printf("Unknown message type %v", modMsg.GetNumeric)
-            }
+            write <- modMsg.String()
         }
     }
 }

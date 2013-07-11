@@ -31,7 +31,7 @@ func (self *AutoJoinModule) GetHandler() []int {
     return []int{irc.END_MOTD}
 }
 
-func (self *AutoJoinModule) Run(ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
+func (self *AutoJoinModule) Run(ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
     channels, _ := self.GetConfigStringSliceValue("channel")
 
     for i := range channels {

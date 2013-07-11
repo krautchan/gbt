@@ -45,7 +45,7 @@ func (self *UrlModule) GetHandler() []int {
     return []int{}
 }
 
-func (self *UrlModule) Run(ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
+func (self *UrlModule) Run(ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
 
     if strings.HasPrefix(ircMsg.GetMessage(), "http://") || strings.HasPrefix(ircMsg.GetMessage(), "https://") {
         url := strings.Split(ircMsg.GetMessage(), " ")[0]

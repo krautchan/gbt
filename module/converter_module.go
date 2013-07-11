@@ -41,7 +41,7 @@ func (self *ConverterModule) GetCommands() map[string]string {
         "convert.cur.list": "List all available currencies"}
 }
 
-func (self *ConverterModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
+func (self *ConverterModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
     switch cmd {
     case "convert.cur":
         if len(params) != 3 {

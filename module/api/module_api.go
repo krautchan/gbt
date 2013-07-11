@@ -160,49 +160,49 @@ func (self *ModuleApi) SetConfigValue(key string, value interface{}) error {
 
 // Create a reply to the current message. Depending on the origin it will either be send in a
 // query or to a channel
-func (self *ModuleApi) Reply(ircMsg *irc.IrcMessage, str string) *irc.IRCHandlerMessage {
+func (self *ModuleApi) Reply(ircMsg *irc.IrcMessage, text string) irc.ClientMessage {
     par := ircMsg.GetParams()
-    msg := &irc.IRCHandlerMessage{Numeric: irc.PRIVMSG, Msg: str, To: ""}
+    msg := &irc.PrivateMessage{Text: text}
 
     if len(par) < 1 {
-        msg.SetTo(strings.Split(ircMsg.GetFrom(), "!")[0])
+        msg.Target = strings.Split(ircMsg.GetFrom(), "!")[0]
     } else if strings.HasPrefix(par[0], "&") || strings.HasPrefix(par[0], "#") {
-        msg.SetTo(par[0])
+        msg.Target = par[0]
     } else {
-        msg.SetTo(strings.Split(ircMsg.GetFrom(), "!")[0])
+        msg.Target = strings.Split(ircMsg.GetFrom(), "!")[0]
     }
 
     return msg
 }
 
 // Create a message that is send "as is" to the server
-func (self *ModuleApi) Raw(msg string) *irc.IRCHandlerMessage {
-    return &irc.IRCHandlerMessage{Numeric: irc.RAW, Msg: msg, To: ""}
+func (self *ModuleApi) Raw(msg string) irc.ClientMessage {
+    return &irc.RawMessage{Message: msg}
 }
 
 // Create a message that is send to a user in a query
-func (self *ModuleApi) Query(to string, msg string) *irc.IRCHandlerMessage {
-    return &irc.IRCHandlerMessage{Numeric: irc.PRIVMSG, Msg: msg, To: strings.Split(to, "!")[0]}
+func (self *ModuleApi) Query(to, msg string) irc.ClientMessage {
+    return &irc.PrivateMessage{Target: strings.Split(to, "!")[0], Text: msg}
 }
 
 // Create a join channel message
-func (self *ModuleApi) Join(channel string) *irc.IRCHandlerMessage {
-    return &irc.IRCHandlerMessage{Numeric: irc.JOIN, Msg: channel, To: ""}
+func (self *ModuleApi) Join(channel string) irc.ClientMessage {
+    return &irc.JoinMessage{Channel: channel}
 }
 
 // Create a nick change message
-func (self *ModuleApi) Nick(nick string) *irc.IRCHandlerMessage {
-    return &irc.IRCHandlerMessage{Numeric: irc.NICK, Msg: nick, To: ""}
+func (self *ModuleApi) Nick(nick string) irc.ClientMessage {
+    return &irc.NickMessage{Nickname: nick}
 }
 
 // Pong creates a PONG message
-func (self *ModuleApi) Pong(ircMsg *irc.IrcMessage, nick string) *irc.IRCHandlerMessage {
-    return &irc.IRCHandlerMessage{Numeric: irc.PONG, Msg: nick + " " + ircMsg.GetMessage(), To: ""}
+func (self *ModuleApi) Pong(server, nick string) irc.ClientMessage {
+    return &irc.PongMessage{Server: server, Nickname: nick}
 }
 
 // Part exits a channel
-func (self *ModuleApi) Part(channel string) *irc.IRCHandlerMessage {
-    return &irc.IRCHandlerMessage{Numeric: irc.PART, Msg: channel, To: ""}
+func (self *ModuleApi) Part(channel string) irc.ClientMessage {
+    return &irc.PartMessage{Channel: channel}
 }
 
 // Update the the current nickname of the bot

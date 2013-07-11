@@ -56,7 +56,7 @@ func (self *WeatherModule) GetCommands() map[string]string {
     return map[string]string{"weather": "CITY - Shows you the current weather in CITY"}
 }
 
-func (self *WeatherModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
+func (self *WeatherModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
     if len(params) == 0 {
         return
     }

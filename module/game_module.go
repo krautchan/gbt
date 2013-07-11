@@ -34,7 +34,7 @@ func (self *GameModule) GetCommands() map[string]string {
         "roulette": "- Russian roulette"}
 }
 
-func (self *GameModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
+func (self *GameModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
     switch cmd {
     case "roulette":
         ch := ircMsg.GetParams()[0]

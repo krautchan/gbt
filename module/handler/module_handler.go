@@ -71,7 +71,7 @@ func (self *ModuleHandler) LoadModules() (err error) {
     return nil
 }
 
-func (self *ModuleHandler) RunHandler(ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
+func (self *ModuleHandler) RunHandler(ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
     for i := range self.msgHandler {
         numerics := self.msgHandler[i].GetHandler()
         for j := range numerics {

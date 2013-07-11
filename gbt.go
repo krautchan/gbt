@@ -1,4 +1,10 @@
 // gbt.go
+//
+// "THE PIZZA-WARE LICENSE" (derived from "THE BEER-WARE LICENCE"):
+// <whoami@dev-urandom.eu> wrote these files. As long as you retain this notice
+// you can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a pizza in return.
+
 package main
 
 import (
@@ -23,19 +29,6 @@ type Server struct {
 
 const CONFIG_FILE = "config.conf"
 
-var wgr sync.WaitGroup
-
-func startConnection(server Server) {
-    mhandler := handler.NewModuleHandler(server.Name, server.Address)
-    if err := mhandler.LoadModules(); err != nil {
-        panic(fmt.Sprintf("Can't load modules: %v", err))
-    }
-
-    evt := irc.NewIRCHandler(mhandler)
-    evt.SetServer(fmt.Sprintf("%v:%v", server.Address, server.Port))
-    evt.HandleIRConn(&wgr)
-}
-
 func main() {
     conf := &Config{}
     if err := config.LoadFromFile(CONFIG_FILE, conf); err != nil {
@@ -53,9 +46,21 @@ func main() {
         panic("No server given")
     }
 
+    wgr := &sync.WaitGroup{}
     for i := range conf.Config {
         wgr.Add(1)
-        go startConnection(conf.Config[i])
+        go func(server *Server) {
+            defer wgr.Done()
+
+            mhandler := handler.NewModuleHandler(server.Name, server.Address)
+            if err := mhandler.LoadModules(); err != nil {
+                panic(fmt.Sprintf("Can't load modules: %v", err))
+            }
+
+            evt := irc.NewIRCHandler(mhandler)
+            evt.SetServer(fmt.Sprintf("%v:%v", server.Address, server.Port))
+            evt.HandleIRConn()
+        }(&conf.Config[i])
     }
 
     wgr.Wait()

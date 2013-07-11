@@ -44,7 +44,7 @@ func (self *BrainfuckModule) GetCommands() map[string]string {
         "bf.list": "- List all available variables"}
 }
 
-func (self *BrainfuckModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
+func (self *BrainfuckModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
     user := strings.Split(ircMsg.GetFrom(), "!")[0]
 
     switch cmd {

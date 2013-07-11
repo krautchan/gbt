@@ -51,7 +51,7 @@ func (self *DefaultModule) GetHandler() []int {
     return []int{irc.CONNECTED, irc.WELCOME, irc.PING, irc.JOIN, irc.PART, irc.PRIVMSG}
 }
 
-func (self *DefaultModule) Run(ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
+func (self *DefaultModule) Run(ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
     switch ircMsg.GetNumeric() {
     case irc.CONNECTED:
         user, _ := self.GetConfigStringValue("Username") // Error checking should be done
@@ -76,7 +76,7 @@ func (self *DefaultModule) Run(ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMes
         }
     case irc.PING:
         nick, _ := self.GetConfigStringValue("Nickname")
-        c <- self.Pong(ircMsg, nick)
+        c <- self.Pong(ircMsg.GetMessage(), nick)
     case irc.PRIVMSG:
         if len(ircMsg.GetMessage()) > 1 {
             prefix, _ := self.GetConfigStringValue("CmdPrefix")
@@ -105,7 +105,7 @@ func (self *DefaultModule) GetCommands() map[string]string {
         "help":   "[COMMAND] - Show help"}
 }
 
-func (self *DefaultModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan *irc.IRCHandlerMessage) {
+func (self *DefaultModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
     switch cmd {
     case "whoami":
         c <- self.Reply(ircMsg, ircMsg.GetFrom())
