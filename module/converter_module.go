@@ -2,10 +2,11 @@
 package module
 
 import (
-    "encoding/json"
-    "fmt"
     "github.com/krautchan/gbt/module/api"
     "github.com/krautchan/gbt/net/irc"
+
+    "encoding/json"
+    "fmt"
     "log"
     "net/http"
     "strconv"

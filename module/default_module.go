@@ -2,10 +2,11 @@
 package module
 
 import (
-    "fmt"
     "github.com/krautchan/gbt/module/api"
     "github.com/krautchan/gbt/module/api/interfaces"
     "github.com/krautchan/gbt/net/irc"
+
+    "fmt"
     "log"
     "strings"
 )

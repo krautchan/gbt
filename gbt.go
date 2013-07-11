@@ -2,10 +2,11 @@
 package main
 
 import (
-    "fmt"
     "github.com/krautchan/gbt/config"
     "github.com/krautchan/gbt/module/handler"
     "github.com/krautchan/gbt/net/irc"
+
+    "fmt"
     "log"
     "sync"
 )

@@ -4,6 +4,7 @@ import (
     "github.com/krautchan/gbt/module"
     "github.com/krautchan/gbt/module/api/interfaces"
     "github.com/krautchan/gbt/net/irc"
+
     "log"
 )
 

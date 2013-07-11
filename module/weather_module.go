@@ -2,10 +2,11 @@
 package module
 
 import (
-    "encoding/xml"
-    "fmt"
     "github.com/krautchan/gbt/module/api"
     "github.com/krautchan/gbt/net/irc"
+
+    "encoding/xml"
+    "fmt"
     "log"
     "net/http"
     "net/url"

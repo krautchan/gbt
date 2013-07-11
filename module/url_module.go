@@ -4,6 +4,7 @@ package module
 import (
     "github.com/krautchan/gbt/module/api"
     "github.com/krautchan/gbt/net/irc"
+
     "html"
     "io/ioutil"
     "log"

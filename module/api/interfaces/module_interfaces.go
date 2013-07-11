@@ -3,6 +3,7 @@ package interfaces
 
 import (
     "github.com/krautchan/gbt/net/irc"
+
     "sync"
 )
 

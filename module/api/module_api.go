@@ -2,10 +2,11 @@
 package api
 
 import (
-    "errors"
     "github.com/krautchan/gbt/config"
     "github.com/krautchan/gbt/module/api/interfaces"
     "github.com/krautchan/gbt/net/irc"
+
+    "errors"
     "log"
     "reflect"
     "strings"
