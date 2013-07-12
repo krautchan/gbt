@@ -1,4 +1,10 @@
 // module_api.go
+//
+// "THE PIZZA-WARE LICENSE" (derived from "THE BEER-WARE LICENCE"):
+// <whoami@dev-urandom.eu> wrote these files. As long as you retain this notice
+// you can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a pizza in return.
+
 package api
 
 import (
@@ -160,18 +166,14 @@ func (self *ModuleApi) SetConfigValue(key string, value interface{}) error {
 
 // Create a reply to the current message. Depending on the origin it will either be send in a
 // query or to a channel
-func (self *ModuleApi) Reply(ircMsg *irc.IrcMessage, text string) irc.ClientMessage {
-    par := ircMsg.GetParams()
+func (self *ModuleApi) Reply(srvMsg *irc.PrivateMessage, text string) irc.ClientMessage {
     msg := &irc.PrivateMessage{Text: text}
 
-    if len(par) < 1 {
-        msg.Target = strings.Split(ircMsg.GetFrom(), "!")[0]
-    } else if strings.HasPrefix(par[0], "&") || strings.HasPrefix(par[0], "#") {
-        msg.Target = par[0]
+    if strings.HasPrefix(srvMsg.Target, "#") || strings.HasPrefix(srvMsg.Target, "&") {
+        msg.Target = srvMsg.Target
     } else {
-        msg.Target = strings.Split(ircMsg.GetFrom(), "!")[0]
+        msg.Target = strings.Split(srvMsg.From(), "!")[0]
     }
-
     return msg
 }
 
@@ -181,7 +183,7 @@ func (self *ModuleApi) Raw(msg string) irc.ClientMessage {
 }
 
 // Create a message that is send to a user in a query
-func (self *ModuleApi) Query(to, msg string) irc.ClientMessage {
+func (self *ModuleApi) Privmsg(to, msg string) irc.ClientMessage {
     return &irc.PrivateMessage{Target: strings.Split(to, "!")[0], Text: msg}
 }
 

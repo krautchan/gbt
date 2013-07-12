@@ -1,4 +1,10 @@
 // seen_module.go
+//
+// "THE PIZZA-WARE LICENSE" (derived from "THE BEER-WARE LICENCE"):
+// <whoami@dev-urandom.eu> wrote these files. As long as you retain this notice
+// you can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a pizza in return.
+
 package module
 
 import (
@@ -26,19 +32,19 @@ func (self *SeenModule) Load() error {
     return nil
 }
 
-func (self *SeenModule) GetHandler() []int {
-    return []int{irc.PRIVMSG}
-}
+func (self *SeenModule) Run(srvMsg irc.ServerMessage, c chan irc.ClientMessage) {
 
-func (self *SeenModule) Run(ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
-    if self.GetMyName() == ircMsg.GetParams()[0] {
-        return
+    switch srvMsg := srvMsg.(type) {
+    case *irc.PrivateMessage:
+        if self.GetMyName() == srvMsg.Target {
+            return
+        }
+
+        nick := strings.Split(srvMsg.From(), "!")[0]
+        time := fmt.Sprintf("%v", time.Now().Unix())
+
+        self.SetConfigValue(nick, []string{time, srvMsg.Text})
     }
-
-    nick := strings.Split(ircMsg.GetFrom(), "!")[0]
-    time := fmt.Sprintf("%v", time.Now().Unix())
-
-    self.SetConfigValue(nick, []string{time, ircMsg.GetMessage()})
 }
 
 func (self *SeenModule) formatDuration(dur time.Duration) (str string) {
@@ -69,7 +75,7 @@ func (self *SeenModule) GetCommands() map[string]string {
         "seen": "NICKNAME - Tells you when NICKNAME was seen the last time by the bot"}
 }
 
-func (self *SeenModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
+func (self *SeenModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
     if len(params) > 0 {
         for _, v := range params {
             if sl, err := self.GetConfigStringSliceValue(v); err == nil {
@@ -79,7 +85,7 @@ func (self *SeenModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.
                 }
                 dur := time.Since(time.Unix(t, 0))
 
-                c <- self.Reply(ircMsg, fmt.Sprintf("%v was last seen%v ago: %v", v, self.formatDuration(dur), sl[1]))
+                c <- self.Reply(srvMsg, fmt.Sprintf("%v was last seen%v ago: %v", v, self.formatDuration(dur), sl[1]))
             } else {
                 log.Printf("%v", err)
             }

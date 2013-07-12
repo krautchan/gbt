@@ -1,3 +1,10 @@
+// module_handler.go
+//
+// "THE PIZZA-WARE LICENSE" (derived from "THE BEER-WARE LICENCE"):
+// <whoami@dev-urandom.eu> wrote these files. As long as you retain this notice
+// you can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a pizza in return.
+
 package handler
 
 import (
@@ -9,60 +16,55 @@ import (
 )
 
 type ModuleHandler struct {
-    modules    []interfaces.Module
-    msgHandler []interfaces.MessageHandler
+    modules []interfaces.Module
+    state   *interfaces.IrcState
 }
 
 func NewModuleHandler(serverName string, serverAddr string) *ModuleHandler {
-    handler := &ModuleHandler{[]interfaces.Module{
-        module.NewDefaultModule(),
-        module.NewAutoJoinModule(),
-        module.NewUrlModule(),
-        module.NewAdminModule(),
-        module.NewSeenModule(),
-        module.NewRSSModule(),
-        module.NewWeatherModule(),
-        module.NewStatsModule(),
-        module.NewConverterModule(),
-        module.NewBrainfuckModule(),
-        module.NewGameModule()}, []interfaces.MessageHandler{}}
 
-    state := &interfaces.IrcState{ServerName: serverName,
-        ServerAddr: serverAddr,
-        MyName:     "",
-        MyChannels: make([]string, 0),
-        Identified: make([]string, 0)}
-    for i := range handler.modules {
-        handler.modules[i].SetState(state)
-    }
-
-    return handler
+    return &ModuleHandler{
+        modules: []interfaces.Module{
+            module.NewDefaultModule(),
+            module.NewAutoJoinModule(),
+            module.NewUrlModule(),
+            module.NewAdminModule(),
+            module.NewSeenModule(),
+            module.NewRSSModule(),
+            module.NewWeatherModule(),
+            module.NewStatsModule(),
+            module.NewConverterModule(),
+            module.NewBrainfuckModule(),
+            module.NewGameModule()},
+        state: &interfaces.IrcState{ServerName: serverName,
+            ServerAddr: serverAddr,
+            MyName:     "",
+            MyChannels: make([]string, 0),
+            Identified: make([]string, 0)}}
 }
 
 func (self *ModuleHandler) LoadModules() (err error) {
     var comMaster interfaces.CommandMaster = nil
 
-    for i := range self.modules {
-        if err := self.modules[i].Load(); err != nil {
+    for i, mod := range self.modules {
+        mod.SetState(self.state)
+
+        if err := mod.Load(); err != nil {
             log.Printf("Error loading module: %v", err)
             self.modules[i] = nil
             continue
         }
 
-        if v, ok := self.modules[i].(interfaces.CommandMaster); ok {
+        if v, ok := mod.(interfaces.CommandMaster); ok {
             comMaster = v
-        }
-        if v, ok := self.modules[i].(interfaces.MessageHandler); ok {
-            self.msgHandler = append(self.msgHandler, v)
         }
     }
 
     if comMaster != nil {
-        for i := range self.modules {
-            if self.modules[i] == nil {
+        for _, mod := range self.modules {
+            if mod == nil {
                 continue
             }
-            if v, ok := self.modules[i].(interfaces.CommandExecuter); ok {
+            if v, ok := mod.(interfaces.CommandExecuter); ok {
                 comMaster.AddCommandExecuter(v)
             }
         }
@@ -71,21 +73,20 @@ func (self *ModuleHandler) LoadModules() (err error) {
     return nil
 }
 
-func (self *ModuleHandler) RunHandler(ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
-    for i := range self.msgHandler {
-        numerics := self.msgHandler[i].GetHandler()
-        for j := range numerics {
-            if numerics[j] == ircMsg.GetNumeric() {
-                go func(t int) {
-                    defer func() {
-                        // contain exploding modules; dont let them damage the ship
-                        if err := recover(); err != nil {
-                            log.Printf("Recover from panic: %v", err)
-                        }
-                    }()
-                    self.msgHandler[t].Run(ircMsg, c)
-                }(i)
-            }
+func (self *ModuleHandler) HandleIrcMessage(srvMsg irc.ServerMessage, c chan irc.ClientMessage) {
+    for _, mod := range self.modules {
+        if hnd, ok := mod.(interfaces.ServerMessageHandler); ok {
+
+            go func() {
+                defer func() {
+                    if err := recover(); err != nil {
+                        log.Printf("Recover from panic: %v", err)
+                    }
+                }()
+
+                hnd.HandleServerMessage(srvMsg, c)
+            }()
+
         }
     }
 }

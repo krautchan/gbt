@@ -1,4 +1,10 @@
 // module_interfaces.go
+//
+// "THE PIZZA-WARE LICENSE" (derived from "THE BEER-WARE LICENCE"):
+// <whoami@dev-urandom.eu> wrote these files. As long as you retain this notice
+// you can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a pizza in return.
+
 package interfaces
 
 import (
@@ -21,9 +27,8 @@ type Module interface {
     SetState(state *IrcState)
 }
 
-type MessageHandler interface {
-    GetHandler() []int
-    Run(ircMsg *irc.IrcMessage, c chan irc.ClientMessage)
+type ServerMessageHandler interface {
+    HandleServerMessage(ircMsg irc.ServerMessage, c chan irc.ClientMessage)
 }
 
 type CommandMaster interface {
@@ -32,5 +37,5 @@ type CommandMaster interface {
 
 type CommandExecuter interface {
     GetCommands() map[string]string
-    ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan irc.ClientMessage)
+    ExecuteCommand(cmd string, params []string, ircMsg *irc.PrivateMessage, c chan irc.ClientMessage)
 }

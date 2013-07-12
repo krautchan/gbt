@@ -1,4 +1,10 @@
-// default
+// default_module.go
+//
+// "THE PIZZA-WARE LICENSE" (derived from "THE BEER-WARE LICENCE"):
+// <whoami@dev-urandom.eu> wrote these files. As long as you retain this notice
+// you can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a pizza in return.
+
 package module
 
 import (
@@ -47,40 +53,38 @@ func (self *DefaultModule) Load() error {
     return nil
 }
 
-func (self *DefaultModule) GetHandler() []int {
-    return []int{irc.CONNECTED, irc.WELCOME, irc.PING, irc.JOIN, irc.PART, irc.PRIVMSG}
-}
-
-func (self *DefaultModule) Run(ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
-    switch ircMsg.GetNumeric() {
-    case irc.CONNECTED:
+func (self *DefaultModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan irc.ClientMessage) {
+    switch srvMsg := srvMsg.(type) {
+    case *irc.ConnectedMessage:
         user, _ := self.GetConfigStringValue("Username") // Error checking should be done
         nick, _ := self.GetConfigStringValue("Nickname")
         name, _ := self.GetConfigStringValue("Realname")
 
         c <- self.Nick(nick)
         c <- self.Raw(fmt.Sprintf("User %s 0 * :%s", user, name))
-    case irc.WELCOME:
-        self.UpdateMyName(ircMsg.GetParams()[0])
-    case irc.JOIN:
-        if strings.HasPrefix(ircMsg.GetFrom(), self.GetMyName()+"!") {
-            self.AddChannel(ircMsg.GetMessage())
+    case *irc.NumericMessage:
+        if srvMsg.Number == irc.WELCOME {
+            self.UpdateMyName(srvMsg.Parameter[0])
+        }
+    case *irc.JoinMessage:
+        if strings.HasPrefix(srvMsg.From(), self.GetMyName()+"!") {
+            self.AddChannel(srvMsg.Channel)
         }
 
-        if strings.HasPrefix(ircMsg.GetFrom(), "AlphaBernd!") {
-            self.Reply(ircMsg, "What is thy bidding, my master?") // Star Wars für den Endsieg
+        if strings.HasPrefix(srvMsg.From(), "AlphaBernd!") {
+            c <- self.Privmsg(srvMsg.Channel, "What is thy bidding, my master?") // Star Wars für den Endsieg
         }
-    case irc.PART:
-        if strings.HasPrefix(ircMsg.GetFrom(), self.GetMyName()+"!") {
-            self.RemoveChannel(ircMsg.GetParams()[0])
+    case *irc.PartMessage:
+        if strings.HasPrefix(srvMsg.From(), self.GetMyName()+"!") {
+            self.RemoveChannel(srvMsg.Channel)
         }
-    case irc.PING:
-        nick, _ := self.GetConfigStringValue("Nickname")
-        c <- self.Pong(ircMsg.GetMessage(), nick)
-    case irc.PRIVMSG:
-        if len(ircMsg.GetMessage()) > 1 {
+    case *irc.PingMessage:
+        nick := self.GetMyName()
+        c <- self.Pong(srvMsg.From(), nick)
+    case *irc.PrivateMessage:
+        if len(srvMsg.Text) >= 1 {
             prefix, _ := self.GetConfigStringValue("CmdPrefix")
-            msg := strings.Split(ircMsg.GetMessage(), " ")
+            msg := strings.Split(srvMsg.Text, " ")
 
             if strings.HasPrefix(msg[0], prefix) {
                 for i := range self.comex {
@@ -88,7 +92,7 @@ func (self *DefaultModule) Run(ircMsg *irc.IrcMessage, c chan irc.ClientMessage)
                     commands := self.comex[i].GetCommands()
                     for key := range commands {
                         if key == msg[0][1:] {
-                            self.comex[i].ExecuteCommand(msg[0][1:], msg[1:], ircMsg, c)
+                            self.comex[i].ExecuteCommand(msg[0][1:], msg[1:], srvMsg, c)
                         }
                     }
                 }
@@ -105,10 +109,10 @@ func (self *DefaultModule) GetCommands() map[string]string {
         "help":   "[COMMAND] - Show help"}
 }
 
-func (self *DefaultModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
+func (self *DefaultModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
     switch cmd {
     case "whoami":
-        c <- self.Reply(ircMsg, ircMsg.GetFrom())
+        c <- self.Reply(srvMsg, srvMsg.From())
     case "help":
         prefix, err := self.GetConfigStringValue("CmdPrefix")
         if err != nil {
@@ -124,14 +128,14 @@ func (self *DefaultModule) ExecuteCommand(cmd string, params []string, ircMsg *i
                 }
             }
 
-            c <- self.Reply(ircMsg, msg)
+            c <- self.Reply(srvMsg, msg)
         } else {
             for i := range self.comex {
                 cmd := self.comex[i].GetCommands()
 
                 for key := range cmd {
                     if params[0] == key {
-                        c <- self.Reply(ircMsg, fmt.Sprintf("%v%v %v", prefix, key, cmd[key]))
+                        c <- self.Reply(srvMsg, fmt.Sprintf("%v%v %v", prefix, key, cmd[key]))
                     }
                 }
             }

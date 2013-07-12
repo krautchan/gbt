@@ -1,4 +1,10 @@
 // converter_module.go
+//
+// "THE PIZZA-WARE LICENSE" (derived from "THE BEER-WARE LICENCE"):
+// <whoami@dev-urandom.eu> wrote these files. As long as you retain this notice
+// you can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a pizza in return.
+
 package module
 
 import (
@@ -41,7 +47,7 @@ func (self *ConverterModule) GetCommands() map[string]string {
         "convert.cur.list": "List all available currencies"}
 }
 
-func (self *ConverterModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
+func (self *ConverterModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
     switch cmd {
     case "convert.cur":
         if len(params) != 3 {
@@ -78,8 +84,8 @@ func (self *ConverterModule) ExecuteCommand(cmd string, params []string, ircMsg 
 
         rate := to * (1 / from)
 
-        c <- self.Reply(ircMsg, fmt.Sprintf("%v %v are %.2f %v (Rate: %.5f)", params[0], params[1], base*rate, params[2], rate))
+        c <- self.Reply(srvMsg, fmt.Sprintf("%v %v are %.2f %v (Rate: %.5f)", params[0], params[1], base*rate, params[2], rate))
     case "convert.cur.list":
-        c <- self.Reply(ircMsg, "See http://openexchangerates.org/api/currencies.json for a complete list")
+        c <- self.Reply(srvMsg, "See http://openexchangerates.org/api/currencies.json for a complete list")
     }
 }

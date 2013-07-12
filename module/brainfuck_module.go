@@ -1,4 +1,10 @@
 // brainfuck_module.go
+//
+// "THE PIZZA-WARE LICENSE" (derived from "THE BEER-WARE LICENCE"):
+// <whoami@dev-urandom.eu> wrote these files. As long as you retain this notice
+// you can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a pizza in return.
+
 package module
 
 import (
@@ -44,8 +50,8 @@ func (self *BrainfuckModule) GetCommands() map[string]string {
         "bf.list": "- List all available variables"}
 }
 
-func (self *BrainfuckModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
-    user := strings.Split(ircMsg.GetFrom(), "!")[0]
+func (self *BrainfuckModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
+    user := strings.Split(srvMsg.From(), "!")[0]
 
     switch cmd {
     case "bf":
@@ -65,15 +71,15 @@ func (self *BrainfuckModule) ExecuteCommand(cmd string, params []string, ircMsg 
         output, err := bf.Start()
 
         pos, mem := bf.DumpMemory()
-        c <- self.Reply(ircMsg, fmt.Sprintf("Pointer: %v; Dump: %v", pos, mem))
+        c <- self.Reply(srvMsg, fmt.Sprintf("Pointer: %v; Dump: %v", pos, mem))
 
         if err != nil {
-            c <- self.Reply(ircMsg, fmt.Sprintf("Error: %v", err.Error()))
+            c <- self.Reply(srvMsg, fmt.Sprintf("Error: %v", err.Error()))
             return
         }
 
         if len(output) > 0 {
-            c <- self.Reply(ircMsg, fmt.Sprintf("%q", output))
+            c <- self.Reply(srvMsg, fmt.Sprintf("%q", output))
         }
     case "bf.add":
         if len(params) == 0 {
@@ -83,17 +89,17 @@ func (self *BrainfuckModule) ExecuteCommand(cmd string, params []string, ircMsg 
         defer self.SetConfigValue("cache", cache)
 
         cache[user] = cache[user] + params[0]
-        c <- self.Reply(ircMsg, "success")
+        c <- self.Reply(srvMsg, "success")
     case "bf.prt":
         cache, _ := self.GetConfigMapValue("cache")
 
-        c <- self.Reply(ircMsg, cache[user])
+        c <- self.Reply(srvMsg, cache[user])
     case "bf.rst":
         cache, _ := self.GetConfigMapValue("cache")
         defer self.SetConfigValue("cache", cache)
 
         cache[user] = ""
-        c <- self.Reply(ircMsg, "success")
+        c <- self.Reply(srvMsg, "success")
     case "bf.exec":
         cache, _ := self.GetConfigMapValue("cache")
         vars, _ := self.GetConfigMapValue("var")
@@ -106,15 +112,15 @@ func (self *BrainfuckModule) ExecuteCommand(cmd string, params []string, ircMsg 
         output, err := bf.Start()
 
         pos, mem := bf.DumpMemory()
-        c <- self.Reply(ircMsg, fmt.Sprintf("Pointer: %v; Dump: %v", pos, mem))
+        c <- self.Reply(srvMsg, fmt.Sprintf("Pointer: %v; Dump: %v", pos, mem))
 
         if err != nil {
-            c <- self.Reply(ircMsg, fmt.Sprintf("Error: %v", err.Error()))
+            c <- self.Reply(srvMsg, fmt.Sprintf("Error: %v", err.Error()))
             return
         }
 
         if len(output) > 0 {
-            c <- self.Reply(ircMsg, fmt.Sprintf("%q", output))
+            c <- self.Reply(srvMsg, fmt.Sprintf("%q", output))
         }
     case "bf.set":
         if len(params) < 2 {
@@ -124,7 +130,7 @@ func (self *BrainfuckModule) ExecuteCommand(cmd string, params []string, ircMsg 
         defer self.SetConfigValue("var", vars)
 
         vars[params[0]] = params[1]
-        c <- self.Reply(ircMsg, "success")
+        c <- self.Reply(srvMsg, "success")
     case "bf.del":
         if len(params) < 1 {
             return
@@ -135,12 +141,12 @@ func (self *BrainfuckModule) ExecuteCommand(cmd string, params []string, ircMsg 
         if _, ok := vars[params[0]]; ok {
             delete(vars, params[0])
         }
-        c <- self.Reply(ircMsg, "success")
+        c <- self.Reply(srvMsg, "success")
     case "bf.list":
         vars, _ := self.GetConfigMapValue("var")
 
         for k, v := range vars {
-            c <- self.Reply(ircMsg, fmt.Sprintf("Name: %v; %v", k, v))
+            c <- self.Reply(srvMsg, fmt.Sprintf("Name: %v; %v", k, v))
         }
     }
 }

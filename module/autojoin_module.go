@@ -1,4 +1,10 @@
 // autojoin_module.go
+//
+// "THE PIZZA-WARE LICENSE" (derived from "THE BEER-WARE LICENCE"):
+// <whoami@dev-urandom.eu> wrote these files. As long as you retain this notice
+// you can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a pizza in return.
+
 package module
 
 import (
@@ -27,14 +33,14 @@ func (self *AutoJoinModule) Load() error {
     return nil
 }
 
-func (self *AutoJoinModule) GetHandler() []int {
-    return []int{irc.END_MOTD}
-}
-
-func (self *AutoJoinModule) Run(ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
-    channels, _ := self.GetConfigStringSliceValue("channel")
-
-    for i := range channels {
-        c <- self.Join(channels[i])
+func (self *AutoJoinModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan irc.ClientMessage) {
+    switch srvMsg := srvMsg.(type) {
+    case *irc.NumericMessage:
+        if srvMsg.Number == irc.END_MOTD {
+            channels, _ := self.GetConfigStringSliceValue("channel")
+            for i := range channels {
+                c <- self.Join(channels[i])
+            }
+        }
     }
 }

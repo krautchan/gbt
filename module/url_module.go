@@ -1,4 +1,10 @@
 // url_module.go
+//
+// "THE PIZZA-WARE LICENSE" (derived from "THE BEER-WARE LICENCE"):
+// <whoami@dev-urandom.eu> wrote these files. As long as you retain this notice
+// you can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a pizza in return.
+
 package module
 
 import (
@@ -37,44 +43,39 @@ func (self *UrlModule) Load() error {
     return nil
 }
 
-func (self *UrlModule) GetHandler() []int {
-    if v, _ := self.GetConfigStringValue("run"); v == "true" {
-        return []int{irc.PRIVMSG}
-    }
+func (self *UrlModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan irc.ClientMessage) {
 
-    return []int{}
-}
+    switch srvMsg := srvMsg.(type) {
+    case *irc.PrivateMessage:
+        if strings.HasPrefix(srvMsg.Text, "http://") || strings.HasPrefix(srvMsg.Text, "https://") {
+            url := strings.Split(srvMsg.Text, " ")[0]
+            prefix, _ := self.GetConfigStringValue("prefix")
 
-func (self *UrlModule) Run(ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
+            resp, err := http.Head(url)
+            if err != nil {
+                return
+            }
 
-    if strings.HasPrefix(ircMsg.GetMessage(), "http://") || strings.HasPrefix(ircMsg.GetMessage(), "https://") {
-        url := strings.Split(ircMsg.GetMessage(), " ")[0]
-        prefix, _ := self.GetConfigStringValue("prefix")
+            if !strings.Contains(resp.Header.Get("Content-Type"), "text/html") {
+                return
+            }
 
-        resp, err := http.Head(url)
-        if err != nil {
-            return
-        }
+            resp, err = http.Get(url)
+            if err != nil {
+                return
+            }
+            defer resp.Body.Close()
 
-        if !strings.Contains(resp.Header.Get("Content-Type"), "text/html") {
-            return
-        }
+            b, err := ioutil.ReadAll(resp.Body)
+            if err != nil {
+                return
+            }
 
-        resp, err = http.Get(url)
-        if err != nil {
-            return
-        }
-        defer resp.Body.Close()
-
-        b, err := ioutil.ReadAll(resp.Body)
-        if err != nil {
-            return
-        }
-
-        rx, _ := regexp.Compile(`<title>(.*)</title>`)
-        sl := rx.FindStringSubmatch(string(b))
-        if len(sl) > 1 {
-            c <- self.Reply(ircMsg, prefix+html.UnescapeString(sl[1]))
+            rx, _ := regexp.Compile(`<title>(.*)</title>`)
+            sl := rx.FindStringSubmatch(string(b))
+            if len(sl) > 1 {
+                c <- self.Reply(srvMsg, prefix+html.UnescapeString(sl[1]))
+            }
         }
     }
 }

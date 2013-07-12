@@ -1,4 +1,10 @@
 // stats_module.go
+//
+// "THE PIZZA-WARE LICENSE" (derived from "THE BEER-WARE LICENCE"):
+// <whoami@dev-urandom.eu> wrote these files. As long as you retain this notice
+// you can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a pizza in return.
+
 package module
 
 import (
@@ -25,30 +31,26 @@ func (self *StatsModule) Load() error {
     return nil
 }
 
-func (self *StatsModule) GetHandler() []int {
-    return []int{irc.PRIVMSG, irc.KICK, irc.JOIN, irc.PART}
-}
-
-func (self *StatsModule) Run(ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
-    nick := strings.Split(ircMsg.GetFrom(), "!")[0]
+func (self *StatsModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan irc.ClientMessage) {
+    nick := strings.Split(srvMsg.From(), "!")[0]
     stats, err := self.GetConfigMapValue(nick)
     if err != nil {
         stats = map[string]string{"word": "0", "line": "0", "emo": "0", "join": "0", "part": "0", "kick": "0"}
     }
     defer self.SetConfigValue(nick, stats)
 
-    switch ircMsg.GetNumeric() {
-    case irc.KICK:
+    switch srvMsg := srvMsg.(type) {
+    case *irc.KickMessage:
         t, _ := strconv.Atoi(stats["kick"])
         stats["kick"] = strconv.Itoa(t + 1)
-    case irc.JOIN:
+    case *irc.JoinMessage:
         t, _ := strconv.Atoi(stats["join"])
         stats["join"] = strconv.Itoa(t + 1)
-    case irc.PART:
+    case *irc.PartMessage:
         t, _ := strconv.Atoi(stats["part"])
         stats["part"] = strconv.Itoa(t + 1)
-    case irc.PRIVMSG:
-        words := strings.Split(ircMsg.GetMessage(), " ")
+    case *irc.PrivateMessage:
+        words := strings.Split(srvMsg.Text, " ")
 
         if len(words) > 0 {
             t, _ := strconv.Atoi(stats["word"])
@@ -75,7 +77,7 @@ func (self *StatsModule) GetCommands() map[string]string {
         "stats": "[NICKNAME] - Show stats overall stats or stats for NICKNAME"}
 }
 
-func (self *StatsModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
+func (self *StatsModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
     if len(params) == 0 {
 
         max := func(name1 string, no1 string, name2 string, no2 string) (string, string) {
@@ -99,7 +101,7 @@ func (self *StatsModule) ExecuteCommand(cmd string, params []string, ircMsg *irc
             toplist[v] = []string{topname, topno}
         }
 
-        c <- self.Reply(ircMsg, fmt.Sprintf("Stats: Most autistic: %v; Most annoying: %v; Emotional wreck: %v; Most unstable: %v; Most hated: %v",
+        c <- self.Reply(srvMsg, fmt.Sprintf("Stats: Most autistic: %v; Most annoying: %v; Emotional wreck: %v; Most unstable: %v; Most hated: %v",
             toplist["line"][0], toplist["word"][0], toplist["emo"][0], toplist["join"][0], toplist["kick"][0]))
 
     } else {
@@ -108,7 +110,7 @@ func (self *StatsModule) ExecuteCommand(cmd string, params []string, ircMsg *irc
             return
         }
 
-        c <- self.Reply(ircMsg, fmt.Sprintf("Stats for %v: Lines: %v; Words: %v; Emoticons: %v; Joins: %v; Parts: %v; Kicks: %v",
+        c <- self.Reply(srvMsg, fmt.Sprintf("Stats for %v: Lines: %v; Words: %v; Emoticons: %v; Joins: %v; Parts: %v; Kicks: %v",
             params[0], stats["line"], stats["word"], stats["emo"], stats["join"], stats["part"], stats["kick"]))
     }
 }

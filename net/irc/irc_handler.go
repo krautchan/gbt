@@ -13,7 +13,7 @@ import (
 )
 
 type IRCMessageHandler interface {
-    RunHandler(ircMsg *IrcMessage, c chan ClientMessage)
+    HandleIrcMessage(ircMsg ServerMessage, c chan ClientMessage)
 }
 
 type IRCHandler struct {
@@ -47,7 +47,7 @@ func (self *IRCHandler) HandleIRConn() {
                 if ircMsg, err := parseMessage(srvMsg); err != nil {
                     log.Printf("DROPPED <-- %v", srvMsg)
                 } else {
-                    self.mh.RunHandler(ircMsg, mod)
+                    self.mh.HandleIrcMessage(ircMsg, mod)
                     log.Printf("<-- %v", srvMsg)
                 }
             } else {

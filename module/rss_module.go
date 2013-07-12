@@ -1,4 +1,10 @@
 // rss_module.go
+//
+// "THE PIZZA-WARE LICENSE" (derived from "THE BEER-WARE LICENCE"):
+// <whoami@dev-urandom.eu> wrote these files. As long as you retain this notice
+// you can do whatever you want with this stuff. If we meet some day, and you think
+// this stuff is worth it, you can buy me a pizza in return.
+
 package module
 
 import (
@@ -49,7 +55,7 @@ func (self *RSSModule) GetCommands() map[string]string {
     return cmd
 }
 
-func (self *RSSModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.IrcMessage, c chan irc.ClientMessage) {
+func (self *RSSModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
     feeds, err := self.GetConfigMapValue("feeds")
     if err == nil {
         if url, ok := feeds[cmd]; ok {
@@ -66,10 +72,10 @@ func (self *RSSModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.I
             if err != nil {
                 return
             }
-            self.ExecuteCommand("rss", []string{url}, ircMsg, c)
+            self.ExecuteCommand("rss", []string{url}, srvMsg, c)
         } else {
             msg := strings.Join(params, " ")
-            author := strings.Split(ircMsg.GetFrom(), "!")[0]
+            author := strings.Split(srvMsg.From(), "!")[0]
 
             path, err := self.GetConfigStringValue("news.file")
             if err != nil {
@@ -86,10 +92,10 @@ func (self *RSSModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.I
             if err := feed.WriteToFile(path); err != nil {
                 log.Printf("%v", err)
             }
-            c <- self.Reply(ircMsg, "success")
+            c <- self.Reply(srvMsg, "success")
         }
     case "news.setFile":
-        if !self.IsIdentified(ircMsg.GetFrom()) {
+        if !self.IsIdentified(srvMsg.From()) {
             return
         }
 
@@ -101,9 +107,9 @@ func (self *RSSModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.I
             return
         }
 
-        c <- self.Reply(ircMsg, "success")
+        c <- self.Reply(srvMsg, "success")
     case "news.setUrl":
-        if !self.IsIdentified(ircMsg.GetFrom()) {
+        if !self.IsIdentified(srvMsg.From()) {
             return
         }
 
@@ -114,9 +120,9 @@ func (self *RSSModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.I
         if err := self.SetConfigValue("news.url", params[0]); err != nil {
             return
         }
-        c <- self.Reply(ircMsg, "success")
+        c <- self.Reply(srvMsg, "success")
     case "rss.add":
-        if !self.IsIdentified(ircMsg.GetFrom()) {
+        if !self.IsIdentified(srvMsg.From()) {
             return
         }
 
@@ -141,9 +147,9 @@ func (self *RSSModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.I
         if err := self.SetConfigValue("feeds", feeds); err != nil {
             return
         }
-        c <- self.Reply(ircMsg, "success")
+        c <- self.Reply(srvMsg, "success")
     case "rss.del":
-        if !self.IsIdentified(ircMsg.GetFrom()) {
+        if !self.IsIdentified(srvMsg.From()) {
             return
         }
 
@@ -155,13 +161,13 @@ func (self *RSSModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.I
             log.Printf("%v", err)
         }
 
-        c <- self.Reply(ircMsg, "success")
+        c <- self.Reply(srvMsg, "success")
     case "rss.list":
         keys := self.GetConfigKeys()
 
         for i := range keys {
             if url, err := self.GetConfigStringValue(keys[i]); err == nil {
-                c <- self.Reply(ircMsg, fmt.Sprintf("%v - %v", keys[i], url))
+                c <- self.Reply(srvMsg, fmt.Sprintf("%v - %v", keys[i], url))
             }
         }
 
@@ -175,15 +181,15 @@ func (self *RSSModule) ExecuteCommand(cmd string, params []string, ircMsg *irc.I
             }
 
             for i := range rss.Channel {
-                c <- self.Reply(ircMsg, rss.Channel[i].Title)
+                c <- self.Reply(srvMsg, rss.Channel[i].Title)
                 for j := range rss.Channel[i].Item {
                     if j >= 5 {
                         return
                     }
                     if rss.Channel[i].Item[j].Author == "" {
-                        c <- self.Reply(ircMsg, fmt.Sprintf("Item[%v]: %v", j, rss.Channel[i].Item[j].Title))
+                        c <- self.Reply(srvMsg, fmt.Sprintf("Item[%v]: %v", j, rss.Channel[i].Item[j].Title))
                     } else {
-                        c <- self.Reply(ircMsg, fmt.Sprintf("Item[%v]: %v - %v", j, rss.Channel[i].Item[j].Title, rss.Channel[i].Item[j].Author))
+                        c <- self.Reply(srvMsg, fmt.Sprintf("Item[%v]: %v - %v", j, rss.Channel[i].Item[j].Title, rss.Channel[i].Item[j].Author))
                     }
                 }
             }
