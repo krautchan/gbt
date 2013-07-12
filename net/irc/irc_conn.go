@@ -58,6 +58,10 @@ func (self *IRConn) Dial(host string) error {
         for {
             msg := <-self.write
 
+            if len(msg) > 510 {
+                msg = msg[0:510]
+            }
+
             if _, err := self.con.Write([]byte(msg + "\r\n")); err != nil {
                 log.Printf("%v", err)
                 close(self.read)

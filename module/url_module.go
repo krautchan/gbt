@@ -58,6 +58,7 @@ func (self *UrlModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan irc.
 
             resp, err := http.Head(url)
             if err != nil {
+                log.Printf("Could not get HEAD from: %v", err)
                 return
             }
 
@@ -67,12 +68,14 @@ func (self *UrlModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan irc.
 
             resp, err = http.Get(url)
             if err != nil {
+                log.Printf("Could not GET from: %v", err)
                 return
             }
             defer resp.Body.Close()
 
             b, err := ioutil.ReadAll(resp.Body)
             if err != nil {
+                log.Printf("Could not read body from: %v", err)
                 return
             }
 
