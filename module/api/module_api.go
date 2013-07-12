@@ -167,7 +167,7 @@ func (self *ModuleApi) SetConfigValue(key string, value interface{}) error {
     return nil
 }
 
-// Create a reply to the current message. Depending on the origin it will either be send in a
+// Reply to the current message. Depending on the origin it will either be send in a
 // query or to a channel
 func (self *ModuleApi) Reply(srvMsg *irc.PrivateMessage, text string) irc.ClientMessage {
     msg := &irc.PrivateMessage{Text: text}
@@ -180,22 +180,22 @@ func (self *ModuleApi) Reply(srvMsg *irc.PrivateMessage, text string) irc.Client
     return msg
 }
 
-// Create a message that is send "as is" to the server
+// Raw creates a message that is send "as is" to the server
 func (self *ModuleApi) Raw(msg string) irc.ClientMessage {
     return &irc.RawMessage{Message: msg}
 }
 
-// Create a message that is send to a user in a query
+// Privmsg creates a PRIVMSG message
 func (self *ModuleApi) Privmsg(to, msg string) irc.ClientMessage {
     return &irc.PrivateMessage{Target: strings.Split(to, "!")[0], Text: msg}
 }
 
-// Create a join channel message
+// Join creates a JOIN message
 func (self *ModuleApi) Join(channel string) irc.ClientMessage {
     return &irc.JoinMessage{Channel: channel}
 }
 
-// Create a nick change message
+// Nick creates a NICK message
 func (self *ModuleApi) Nick(nick string) irc.ClientMessage {
     return &irc.NickMessage{Nickname: nick}
 }
@@ -208,6 +208,11 @@ func (self *ModuleApi) Pong(server, nick string) irc.ClientMessage {
 // Part exits a channel
 func (self *ModuleApi) Part(channel string) irc.ClientMessage {
     return &irc.PartMessage{Channel: channel}
+}
+
+// Kick create a Kick message
+func (m *ModuleApi) Kick(channel, user string) irc.ClientMessage {
+    return &irc.KickMessage{Channel: channel, Nickname: user}
 }
 
 // Update the the current nickname of the bot
