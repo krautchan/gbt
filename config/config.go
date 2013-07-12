@@ -5,8 +5,6 @@
 // you can do whatever you want with this stuff. If we meet some day, and you think
 // this stuff is worth it, you can buy me a pizza in return.
 
-// +build !arm
-
 package config
 
 import (
@@ -15,27 +13,9 @@ import (
     "io"
     "log"
     "os"
-    "os/user"
 )
 
 var conf_dir string
-
-func init() {
-    //create config dir
-    usr, err := user.Current()
-    if err != nil {
-        log.Printf("Can't detect current user: %v", err)
-        return
-    }
-
-    if usr.Uid != "0" {
-        dir := usr.HomeDir + "/.config/gbt"
-        os.MkdirAll(dir, 0775)
-        conf_dir = usr.HomeDir + "/.config/gbt/"
-    } else {
-        conf_dir = "/etc/gbt/"
-    }
-}
 
 func CreateConfigPath(path string) {
     os.MkdirAll(conf_dir+path, 0775)
