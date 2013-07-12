@@ -31,25 +31,35 @@ func (self *StatsModule) Load() error {
     return nil
 }
 
-func (self *StatsModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan irc.ClientMessage) {
-    nick := strings.Split(srvMsg.From(), "!")[0]
+func (self *StatsModule) loadStats(nick string) map[string]string {
     stats, err := self.GetConfigMapValue(nick)
     if err != nil {
         stats = map[string]string{"word": "0", "line": "0", "emo": "0", "join": "0", "part": "0", "kick": "0"}
     }
-    defer self.SetConfigValue(nick, stats)
+    return stats
+}
 
+func (self *StatsModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan irc.ClientMessage) {
+    nick := strings.Split(srvMsg.From(), "!")[0]
     switch srvMsg := srvMsg.(type) {
     case *irc.KickMessage:
+        stats := self.loadStats(nick)
+        defer self.SetConfigValue(nick, stats)
         t, _ := strconv.Atoi(stats["kick"])
         stats["kick"] = strconv.Itoa(t + 1)
     case *irc.JoinMessage:
+        stats := self.loadStats(nick)
+        defer self.SetConfigValue(nick, stats)
         t, _ := strconv.Atoi(stats["join"])
         stats["join"] = strconv.Itoa(t + 1)
     case *irc.PartMessage:
+        stats := self.loadStats(nick)
+        defer self.SetConfigValue(nick, stats)
         t, _ := strconv.Atoi(stats["part"])
         stats["part"] = strconv.Itoa(t + 1)
     case *irc.PrivateMessage:
+        stats := self.loadStats(nick)
+        defer self.SetConfigValue(nick, stats)
         words := strings.Split(srvMsg.Text, " ")
 
         if len(words) > 0 {

@@ -13,6 +13,7 @@ import (
     "github.com/krautchan/gbt/net/irc"
 
     "errors"
+    "fmt"
     "log"
     "reflect"
     "strings"
@@ -86,7 +87,8 @@ func (self *ModuleApi) GetConfigStringValue(key string) (string, error) {
 
     value, ok := self.Config[key]
     if !ok {
-        return "", errors.New("Unknown Key")
+        log.Printf("GetConfigStringValue: Unknown key: %s", key)
+        return "", errors.New(fmt.Sprintf("Unknown Key: %s", key))
     }
 
     if s, ok := value.(string); ok {
@@ -102,8 +104,8 @@ func (self *ModuleApi) GetConfigMapValue(key string) (map[string]string, error) 
 
     value, ok := self.Config[key]
     if !ok {
-        log.Printf("%v", "GetConfigMapValue: Unkown key")
-        return nil, errors.New("Unknown key")
+        log.Printf("GetConfigMapValue: Unknown key: %s", key)
+        return nil, errors.New(fmt.Sprintf("Unknown Key: %s", key))
     }
 
     if sl, ok := value.(map[string]string); ok {
@@ -130,7 +132,8 @@ func (self *ModuleApi) GetConfigStringSliceValue(key string) ([]string, error) {
 
     value, ok := self.Config[key]
     if !ok {
-        return nil, errors.New("Unknown key")
+        log.Printf("GetConfigSliceValue: Unknown key: %s", key)
+        return nil, errors.New(fmt.Sprintf("Unknown Key: %s", key))
     }
 
     if sl, ok := value.([]string); ok {

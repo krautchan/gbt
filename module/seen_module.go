@@ -32,7 +32,7 @@ func (self *SeenModule) Load() error {
     return nil
 }
 
-func (self *SeenModule) Run(srvMsg irc.ServerMessage, c chan irc.ClientMessage) {
+func (self *SeenModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan irc.ClientMessage) {
 
     switch srvMsg := srvMsg.(type) {
     case *irc.PrivateMessage:

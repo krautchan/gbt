@@ -8,12 +8,20 @@
 package irc
 
 //thanks to https://www.alien.net.au/irc/irc2numerics.html
+//(incomplete)
 
 const (
-    CONNECTED     = 0
-    WELCOME       = 1
-    MOTD          = 372
-    BEGIN_MOTD    = 375
-    END_MOTD      = 376
-    NICKNAMEINUSE = 433
+    CONNECTED       = 0
+    WELCOME         = 1
+    YOURHOST        = 2
+    CREATED         = 3
+    MYINFO          = 4
+    BOUNCE          = 5
+    TRACELINK       = 200
+    TRACECONNECTING = 201
+    WHOISUSER       = 311
+    MOTD            = 372
+    BEGIN_MOTD      = 375
+    END_MOTD        = 376
+    NICKNAMEINUSE   = 433
 )

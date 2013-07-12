@@ -11,6 +11,7 @@ import (
     "github.com/krautchan/gbt/module/api"
     "github.com/krautchan/gbt/net/irc"
 
+    "errors"
     "html"
     "io/ioutil"
     "log"
@@ -37,6 +38,10 @@ func (self *UrlModule) Load() error {
         if err := self.SetConfigValue("prefix", "URL: "); err != nil {
             return err
         }
+    }
+
+    if v, _ := self.GetConfigStringValue("run"); v == "false" {
+        return errors.New("disabled in config")
     }
 
     log.Printf("Loaded UrlModule")
