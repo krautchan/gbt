@@ -13,6 +13,7 @@ Run gbt once and it will create the directory `$HOME/.config/gbt`. If you run gb
 In `config.conf` you define the servers you want your bot to connect to. For each server entry gbt will create a new subdirectory with all module configuration files.
 
 Example:
+
     {"config":
         [
             {"name":"dev-urandom","address":"dev-urandom.eu","port":"6667"},
