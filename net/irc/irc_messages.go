@@ -131,6 +131,9 @@ type PongMessage struct {
 }
 
 func (p *PongMessage) String() string {
+    if p.Nickname == "" {
+        return fmt.Sprintf("PONG %s", p.Server) // response to ping before first NICK message was sent
+    }
     return fmt.Sprintf("PONG %s %s", p.Nickname, p.Server)
 }
 
@@ -150,11 +153,12 @@ func (q *QuitMessage) From() string {
 type KickMessage struct {
     Channel  string
     Nickname string
+    Reason   string
     Fr       string
 }
 
 func (k *KickMessage) String() string {
-    return fmt.Sprintf("KICK %s %s", k.Channel, k.Nickname)
+    return fmt.Sprintf("KICK %s %s :%s", k.Channel, k.Nickname, k.Reason)
 }
 
 func (k *KickMessage) From() string {

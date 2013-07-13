@@ -12,6 +12,7 @@ import (
     "github.com/krautchan/gbt/net/irc"
 
     "errors"
+    "fmt"
     "html"
     "io/ioutil"
     "log"
@@ -86,4 +87,25 @@ func (self *UrlModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan irc.
             }
         }
     }
+}
+
+func (self *UrlModule) GetCommands() map[string]string {
+    return map[string]string{"isitdown": "URL - Test if URL is reachable"}
+}
+
+func (self *UrlModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
+    if len(params) == 0 {
+        return
+    }
+
+    url := params[0]
+    if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+        url = "http://" + url
+    }
+    resp, err := http.Head(url)
+    if err != nil {
+        c <- self.Reply(srvMsg, fmt.Sprintf("%s is down for me", url))
+        return
+    }
+    c <- self.Reply(srvMsg, fmt.Sprintf("%s response is %s", url, resp.Status))
 }

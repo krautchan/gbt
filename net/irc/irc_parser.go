@@ -47,7 +47,7 @@ func parseMessage(msg string) (ServerMessage, error) {
                 return &QuitMessage{Fr: from, Text: msg}, nil
             case "KICK":
                 if len(params) >= 2 {
-                    return &KickMessage{Fr: from, Channel: params[0], Nickname: params[1]}, nil
+                    return &KickMessage{Fr: from, Channel: params[0], Nickname: params[1], Reason: msg}, nil
                 }
             case "NICK":
                 if len(params) >= 1 {
@@ -56,6 +56,11 @@ func parseMessage(msg string) (ServerMessage, error) {
             case "MODE":
                 if len(params) >= 2 {
                     return &ModeMessage{Fr: from, Target: params[0], Mode: strings.Join(params[1:], " ")}, nil
+                }
+
+                //euirc
+                if len(params) == 1 {
+                    return &ModeMessage{Fr: from, Target: params[0], Mode: msg}, nil
                 }
             case "NOTICE":
                 if len(params) >= 1 {

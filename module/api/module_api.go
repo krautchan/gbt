@@ -18,7 +18,6 @@ import (
     "reflect"
     "strings"
     "sync"
-    "time"
 )
 
 type ModuleApi struct {
@@ -211,8 +210,17 @@ func (self *ModuleApi) Part(channel string) irc.ClientMessage {
 }
 
 // Kick create a Kick message
-func (m *ModuleApi) Kick(channel, user string) irc.ClientMessage {
-    return &irc.KickMessage{Channel: channel, Nickname: user}
+func (m *ModuleApi) Kick(channel, user, reason string) irc.ClientMessage {
+    return &irc.KickMessage{Channel: channel, Nickname: user, Reason: reason}
+}
+
+// Ban a user from a channel
+func (m *ModuleApi) Ban(channel, user string) irc.ClientMessage {
+    return &irc.ModeMessage{Target: channel, Mode: "+b " + user}
+}
+
+func (m *ModuleApi) Unban(channel, user string) irc.ClientMessage {
+    return &irc.ModeMessage{Target: channel, Mode: "-b " + user}
 }
 
 // Update the the current nickname of the bot
@@ -289,12 +297,4 @@ func (self *ModuleApi) GetMyName() string {
     defer self.state.Mutex.RUnlock()
 
     return self.state.MyName
-}
-
-// Schedule a function to be run after the given amount of seconds
-func (self *ModuleApi) Schedule(f func(), sec int) {
-    go func(f func(), sec int) {
-        time.Sleep(time.Duration(sec) * time.Second)
-        f()
-    }(f, sec)
 }
