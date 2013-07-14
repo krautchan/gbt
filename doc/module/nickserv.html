@@ -21,31 +21,23 @@
         </header>
         <div class="main">
 
-    <h2>DefaultModule</h2>
-    <p>This module handles the default communication with the IRC server, like registering on the server after the connection has been opened</p>
+    <h2>NickservModule</h2>
+    <p>This module can identify the bot with a nickserv service</p>
 
 <h3>Configuration</h3>
 
 <p>gbt.conf</p>
 
 <pre><code>{&quot;Config&quot;:{
-    &quot;CmdPrefix&quot;:&quot;&amp;#38;&quot;,
-    &quot;Nickname&quot;:&quot;gbt_dev&quot;,
-    &quot;Realname&quot;:&quot;gbt&quot;,
-    &quot;Username&quot;:&quot;gbt&quot;
+    &quot;enabled&quot;:&quot;true&quot;,&quot;password&quot;:&quot;abcdefg&quot;
 }}
 </code></pre>
 
-<p><var>CmdPrefix</var> is the prefix of that is used for bot command in channels</p>
+<p>If <var>enabled</var> is set to something other than &ldquo;true&rdquo; the module will not be loaded. In <var>password</var> the nickserv password is set.</p>
 
 <h3>Commands</h3>
 
-<dl>
-    <dt><code>&#38;whoami</code></dt>
-    <dd>Tells you who you are</dd>
-    <dt><code>&#38;help [COMMAND]</code></dt>
-    <dd>When invoked without a COMMAND it lists all available commands otherwise it shows the help for COMMAND</dd>
-</dl>
+<p>- NONE -</p>
 
         </div>
     </body>
