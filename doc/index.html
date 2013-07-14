@@ -2,21 +2,25 @@
 <html>
     <head>
         <title>gbt - a irc bot written in go</title>
-        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
-        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono' rel='stylesheet' type='text/css'>
-        <link rel="stylesheet" type="text/css" href="style.css">
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+        <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+        <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+        <link rel="stylesheet" type="text/css" href="/static/style.css">
     </head>
     <body>
         <a href="https://github.com/krautchan/gbt">
             <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub">
         </a>
         <header>
+            <img id="logo" src="/static/logo.png" alt="gbt logo">
             <h1><a href="/">GBT - a irc bot written in go</a></h1>
             <p>
                 Mail: whoami [AT] dev-urandom [DOT] eu
             </p>
         </header>
         <div class="main">
+
             <h3>Compilation &#38; Installation</h3>
             <pre>    $ go get github.com/krautchan/gbt
     $ go install github.com/krautchan/gbt</pre>
@@ -33,6 +37,7 @@
             <p>When you added a new server you should restart gbt and stop it again. Go to the admin.conf file in the subdirectory of the added server and change the admin password to something more secure. Go through the other config files and change the settings to your liking.</p>
             <h3>Modules</h3>
             <p><a href="/module/admin.html">Admin</a> | <a href="/module/autojoin.html">AutoJoin</a> | <a href="/module/brainfuck.html">Brainfuck</a> | <a href="/module/converter.html">Converter</a> | <a href="/module/default.html">Default</a> | <a href="/module/game.html">Game</a> | <a href="/module/rss.html">RSS</a> | <a href="/module/seen.html">Seen</a> | <a href="/module/stats.html">Stats</a> | <a href="/module/url.html">Url</a> | <a href="/module/weather.html">Weather</a> | <a href="/module/web.html">Web</a></p>
+
             <h3>Running</h3>
             <p>It is recommended to start gbt in a <var>screen</var> or <var>tmux</var> session. To get a list of all available commands send <code>&#38;help</code> to a channel with gbt in it.</p>
             <h3>Links</h3>
@@ -40,3 +45,4 @@
         </div>
     </body>
 </html>
+
