@@ -40,6 +40,7 @@ func (self *IRConn) Dial(host string) error {
     go func() {
         reader := bufio.NewReader(con)
         defer con.Close()
+
         self.read <- "connected"
         for {
             if msg, err := reader.ReadString('\n'); err == nil {
@@ -47,7 +48,6 @@ func (self *IRConn) Dial(host string) error {
             } else {
                 log.Printf("%v", err)
                 close(self.read)
-                close(self.write)
                 break
             }
         }
@@ -55,8 +55,12 @@ func (self *IRConn) Dial(host string) error {
 
     go func() {
         defer con.Close()
+
         for {
-            msg := <-self.write
+            msg, ok := <-self.write
+            if !ok {
+                break
+            }
 
             if len(msg) > 510 {
                 msg = msg[0:510]
@@ -64,8 +68,6 @@ func (self *IRConn) Dial(host string) error {
 
             if _, err := self.con.Write([]byte(msg + "\r\n")); err != nil {
                 log.Printf("%v", err)
-                close(self.read)
-                close(self.write)
                 break
             }
 

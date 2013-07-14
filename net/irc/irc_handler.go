@@ -51,6 +51,7 @@ func (self *IRCHandler) HandleIRConn() {
                     log.Printf("<-- %v", srvMsg)
                 }
             } else {
+                close(write)
                 self.ircCon.Close()
                 log.Printf("Disconnected: Try to reconnect in 10 seconds")
                 for {
