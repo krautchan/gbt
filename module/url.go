@@ -53,37 +53,42 @@ func (self *UrlModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan irc.
 
     switch srvMsg := srvMsg.(type) {
     case *irc.PrivateMessage:
-        if strings.HasPrefix(srvMsg.Text, "http://") || strings.HasPrefix(srvMsg.Text, "https://") {
-            url := strings.Split(srvMsg.Text, " ")[0]
-            prefix, _ := self.GetConfigStringValue("prefix")
+        sl := strings.Split(srvMsg.Text, " ")
 
-            resp, err := http.Head(url)
-            if err != nil {
-                log.Printf("Could not get HEAD from: %v", err)
-                return
-            }
+        for _, url := range sl {
+            if strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
 
-            if !strings.Contains(resp.Header.Get("Content-Type"), "text/html") {
-                return
-            }
+                prefix, _ := self.GetConfigStringValue("prefix")
 
-            resp, err = http.Get(url)
-            if err != nil {
-                log.Printf("Could not GET from: %v", err)
-                return
-            }
-            defer resp.Body.Close()
+                resp, err := http.Head(url)
+                if err != nil {
+                    log.Printf("Could not get HEAD from: %v", err)
+                    continue
+                }
 
-            b, err := ioutil.ReadAll(resp.Body)
-            if err != nil {
-                log.Printf("Could not read body from: %v", err)
-                return
-            }
+                if !strings.Contains(resp.Header.Get("Content-Type"), "text/html") {
+                    continue
+                }
 
-            rx, _ := regexp.Compile(`<title>(.*)</title>`)
-            sl := rx.FindStringSubmatch(string(b))
-            if len(sl) > 1 {
-                c <- self.Reply(srvMsg, prefix+html.UnescapeString(sl[1]))
+                resp, err = http.Get(url)
+                if err != nil {
+                    log.Printf("Could not GET from: %v", err)
+                    continue
+                }
+
+                b, err := ioutil.ReadAll(resp.Body)
+                if err != nil {
+                    log.Printf("Could not read body from: %v", err)
+                    continue
+                }
+
+                rx, _ := regexp.Compile(`<title>(.*)</title>`)
+                sl := rx.FindStringSubmatch(string(b))
+                if len(sl) > 1 {
+                    c <- self.Reply(srvMsg, prefix+html.UnescapeString(sl[1]))
+                }
+
+                resp.Body.Close()
             }
         }
     }
