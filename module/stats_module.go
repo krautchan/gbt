@@ -84,7 +84,7 @@ func (self *StatsModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan ir
 
 func (self *StatsModule) GetCommands() map[string]string {
     return map[string]string{
-        "stats": "[NICKNAME] - Show stats overall stats or stats for NICKNAME"}
+        "stats": "[NICKNAME] - Show overall stats or stats for NICKNAME"}
 }
 
 func (self *StatsModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
