@@ -3,9 +3,10 @@ gbt
 
 IRC bot written in GO
 
-#### Compilation & Installation
-    go get github.com/krautchan/gbt
-    go install github.com/krautchan/gbt
+#### Compilation & Installation [![Build Status](https://travis-ci.org/krautchan/gbt.png?branch=master)](https://travis-ci.org/krautchan/gbt)
+
+    $ go get github.com/krautchan/gbt
+    $ go install github.com/krautchan/gbt
 
 #### Configuration
 Run gbt once and it will create the directory `$HOME/.config/gbt`. If you run gbt as root(DON'T) it will use `/etc/gbt`. In that directory you will find the main config file `config.conf` and a subdirectory called `dev-urandom`.
