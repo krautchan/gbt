@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>gbt - a irc bot written in go</title>
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" type="text/css" href="/style.css">
+    </head>
+    <body>
+        <a href="https://github.com/krautchan/gbt">
+            <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub">
+        </a>
+        <header>
+            <h1><a href="/">GBT - a irc bot written in go</a></h1>
+            <p>
+                Mail: whoami [AT] dev-urandom [DOT] eu
+            </p>
+        </header>
+        <div class="main">
+            <h2>AdminModule</h2>
+            <p>This module authenticates the admin user and offer command for general bot control</p>
+            <h3>Configuration</h3>
+            <p>admin.conf:
+            <pre>    {"Config":
+        {"password":"XXXXXXXXXXXXX"}
+    }</pre>The admin password should be changed before using the bot</p>
+            <h3>Commands</h3>
+            <dl>
+                <dt><code>&#38;identify PASSWORD</code></dt>
+                <dd>Authenticate yourself to the bot with PASSWORD</dd>
+                <dt><code>&#38;nick NICKNAME</code></dt>
+                <dd>Change the nickname of the bot to NICKNAME[Authentication required]</dd>
+                <dt><code>&#38;join CHANNEL</code></dt>
+                <dd>Tell the bot to join CHANNEL[Authentication required]</dd>
+                <dt><code>&#38;part CHANNEL</code></dt>
+                <dd>Tell the bot to leave CHANNEL[Authentication required]</dd>
+            </dl>
+        </div>
+    </body>
+</html>

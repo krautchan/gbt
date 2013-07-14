@@ -1,0 +1,52 @@
+body { 
+    font-family: 'Open Sans', sans-serif;
+    font-size: 90%;
+}
+code { 
+    background-color: #F0F8FF;
+    font-family: 'Droid Sans Mono', sans-serif;
+    font-size: 80%;
+}
+pre { 
+    background-color: #F5F5F5;
+    font-family: 'Droid Sans Mono', sans-serif;
+    font-size: 80%;
+}
+header {
+    margin: 0 auto;
+    width: 77%;
+}
+.main {
+    width: 70%;
+    margin: 0 auto;
+}
+a:link {
+    text-decoration: underline;
+    color: #CD5C5C;
+}
+a:hover {
+    text-decoration: none;
+}
+a:visited {
+    text-decoration: underline;
+    color: #CD5C5C;
+}
+h1 {
+    margin-bottom: -5px;
+}
+h1 a:link {
+    text-decoration: none;
+    color: inherit;
+}
+h1 a:hover {
+    text-decoration: none;
+    color: inherit;
+}
+h1 a:visited {
+    text-decoration: none;
+    color: inherit;
+}
+h1 a:active {
+    text-decoration: none;
+    color: inherit;
+}

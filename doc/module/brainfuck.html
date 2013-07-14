@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>gbt - a irc bot written in go</title>
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" type="text/css" href="/style.css">
+    </head>
+    <body>
+        <a href="https://github.com/krautchan/gbt">
+            <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub">
+        </a>
+        <header>
+            <h1><a href="/">GBT - a irc bot written in go</a></h1>
+            <p>
+                Mail: whoami [AT] dev-urandom [DOT] eu
+            </p>
+        </header>
+        <div class="main">
+            <h2>BrainfuckModule</h2>
+            <p>A Brainfuck interpreter for IRC.</p>
+            <h3>Configuration</h3>
+            <p>- NONE -</p>
+            <h3>Commands</h3>
+            <dl>
+                <dt><code>&#38;bf SOURCE [INPUT]</code></dt>
+                <dd>Runs the given Brainfuck SOURCE with the given INPUT</dd>
+                <dt><code>&#38;bf.add SOURCE</code></dt>
+                <dd>Add source to your source cache</dd>
+                <dt><code>&#38;bf.prt</code></dt>
+                <dd>Print the contents of your cache</dd>
+                <dt><code>&#38;bf.rst</code></dt>
+                <dd>Reset your cache</dd>
+                <dt><code>&#38;bf.exec [INPUT]</code></dt>
+                <dd>Run you cache with the given INPUT</dd>
+                <dt><code>&#38;bf.set NAME SOURCE</code></dt>
+                <dd>Create global code variables that can be used within Brainfuck source as %NAME%</dd>
+                <dt><code>&#38;bf.del NAME</code></dt>
+                <dd>Remove global code variable</dd>
+                <dt><code>&#38;bf.list</code></dt>
+                <dd>List all available variables</dd>
+            </dl>
+        </div>
+    </body>
+</html>

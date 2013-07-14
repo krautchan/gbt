@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>gbt - a irc bot written in go</title>
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" type="text/css" href="/style.css">
+    </head>
+    <body>
+        <a href="https://github.com/krautchan/gbt">
+            <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub">
+        </a>
+        <header>
+            <h1><a href="/">GBT - a irc bot written in go</a></h1>
+            <p>
+                Mail: whoami [AT] dev-urandom [DOT] eu
+            </p>
+        </header>
+        <div class="main">
+            <h2>DefaultModule</h2>
+            <p>This module handles the default communication with the IRC server, like registering on the server after the connection has been opened</p>
+            <h3>Configuration</h3>
+            <p>gbt.conf <pre>    {"Config":{
+         "CmdPrefix":"&#38;",
+         "Nickname":"gbt_dev",
+         "Realname":"gbt",
+         "Username":"gbt"
+    }}</pre>The <var>CmdPrefix</var> is the prefix of that is used for bot command in channels</p>
+            <h3>Commands</h3>
+            <dl>
+                <dt><code>&#38;whoami</code></dt>
+                <dd>Tells you who you are</dd>
+                <dt><code>&#38;help [COMMAND]</code></dt>
+                <dd>When invoked without a COMMAND it lists all available commands otherwise it shows the help for COMMAND</dd>
+            </dl>
+        </div>
+    </body>
+</html>
