@@ -16,9 +16,16 @@ import (
 // Parse an message send by an IRC server
 // Incomplete https://www.ietf.org/rfc/rfc2812.txt
 func parseMessage(msg string) (ServerMessage, error) {
+    if len(msg) == 0 {
+        return nil, errors.New("Could not parse")
+    }
+
     sl := strings.Fields(msg)
 
     if strings.HasPrefix(sl[0], ":") {
+        if len(sl) < 2 {
+            return nil, errors.New("Could not parse")
+        }
         sl[0] = strings.TrimPrefix(sl[0], ":")
 
         from := sl[0]
@@ -67,6 +74,9 @@ func parseMessage(msg string) (ServerMessage, error) {
                     return &NoticeMessage{Fr: from, Target: params[0], Text: msg}, nil
                 }
             case "PRIVMSG":
+                if len(msg) == 0 {
+                    return nil, errors.New("Could not parse")
+                }
                 if len(params) >= 1 {
                     return &PrivateMessage{Fr: from, Target: params[0], Text: msg}, nil
                 }
@@ -78,6 +88,9 @@ func parseMessage(msg string) (ServerMessage, error) {
     } else {
         switch sl[0] {
         case "PING":
+            if len(sl) < 2 {
+                return nil, errors.New("Could not parse")
+            }
             return &PingMessage{Fr: sl[1][1:]}, nil
         case "connected":
             return &ConnectedMessage{Fr: "local"}, nil

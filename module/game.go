@@ -45,26 +45,6 @@ func (self *GameModule) GetCommands() map[string]string {
 
 // TODO: Reply to configurable sentences
 
-/*
-func (self *GameModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan irc.ClientMessage) {
-    switch srvMsg := srvMsg.(type) {
-    case *irc.PrivateMessage:
-        if "Tangaloa" == strings.Split(srvMsg.From(), "!")[0] {
-            sl := []string{"Shut up, Tangaloa",
-                "Everyone hates you Tangaloa",
-                "Tangaloa you are not welcome here",
-                "Tangaloa stop talking",
-                "Tangaloa I hate you",
-                "OMG Tangaloa said something",
-                "Tangaloa I don't like you",
-                "Australia is chinese territory",
-                "New Zealand >>>>>>>>>>>>>>>>>>>>>> Australia",
-                "So you are a pilot? Fly Away!"}
-            c <- self.Reply(srvMsg, sl[rand.Intn(len(sl))])
-        }
-    }
-}
-*/
 func (self *GameModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
     switch cmd {
     case "roulette":
