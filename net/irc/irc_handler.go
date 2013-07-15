@@ -17,21 +17,23 @@ type IRCMessageHandler interface {
 }
 
 type IRCHandler struct {
-    ircCon *IRConn
-    mh     IRCMessageHandler
-    server string
+    ircCon  *IRConn
+    mh      IRCMessageHandler
+    server  string
+    sslconf *SSLConfig
 }
 
 func NewIRCHandler(mh IRCMessageHandler) (handler *IRCHandler) {
-    return &IRCHandler{NewIRConn(), mh, ""}
+    return &IRCHandler{ircCon: NewIRConn(), mh: mh, server: "", sslconf: nil}
 }
 
-func (self *IRCHandler) SetServer(server string) error {
-    if err := self.ircCon.Dial(server); err != nil {
+func (self *IRCHandler) SetServer(server string, sslconf *SSLConfig) error {
+    if err := self.ircCon.Dial(server, sslconf); err != nil {
         log.Printf("%v", err)
         return err
     }
     self.server = server
+    self.sslconf = sslconf
     return nil
 }
 
@@ -57,7 +59,7 @@ func (self *IRCHandler) HandleIRConn() {
                 for {
                     time.Sleep(10 * time.Second)
                     self.ircCon = NewIRConn()
-                    if err := self.ircCon.Dial(self.server); err == nil {
+                    if err := self.ircCon.Dial(self.server, self.sslconf); err == nil {
                         write = self.ircCon.GetWriteChannel()
                         read = self.ircCon.GetReadChannel()
                         break

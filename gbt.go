@@ -22,9 +22,10 @@ type Config struct {
 }
 
 type Server struct {
-    Name    string `json:"name"`
-    Address string `json:"address"`
-    Port    string `json:"port"`
+    Name      string        `json:"name"`
+    Address   string        `json:"address"`
+    Port      string        `json:"port"`
+    SSLConfig irc.SSLConfig `json:"ssl"`
 }
 
 const CONFIG_FILE = "config.conf"
@@ -36,7 +37,9 @@ func main() {
 
         conf.Config[0].Name = "dev-urandom"
         conf.Config[0].Address = "dev-urandom.eu"
-        conf.Config[0].Port = "6667"
+        conf.Config[0].Port = "6697"
+        conf.Config[0].SSLConfig.UseSSL = true
+        conf.Config[0].SSLConfig.SkipVerify = false
         if err = config.SaveToFile(CONFIG_FILE, conf); err != nil {
             panic("Cant create config file")
         }
@@ -58,7 +61,7 @@ func main() {
             }
 
             evt := irc.NewIRCHandler(mhandler)
-            evt.SetServer(fmt.Sprintf("%v:%v", server.Address, server.Port))
+            evt.SetServer(fmt.Sprintf("%v:%v", server.Address, server.Port), &server.SSLConfig)
             evt.HandleIRConn()
         }(&conf.Config[i])
     }

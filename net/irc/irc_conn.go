@@ -9,9 +9,15 @@ package irc
 
 import (
     "bufio"
+    "crypto/tls"
     "log"
     "net"
 )
+
+type SSLConfig struct {
+    UseSSL     bool
+    SkipVerify bool
+}
 
 type IRConn struct {
     read, write chan string
@@ -24,12 +30,19 @@ func NewIRConn() *IRConn {
 
 // Connect to an IRC Server
 // Takes the server address as parameter
-func (self *IRConn) Dial(host string) error {
+func (self *IRConn) Dial(host string, sslConf *SSLConfig) error {
+
     log.Printf("Connecting to %v...", host)
     con, err := net.Dial("tcp", host)
     if err != nil {
         log.Printf("failed %v", err)
         return err
+    }
+
+    if sslConf.UseSSL {
+        log.Println("Using SSL")
+        conf := &tls.Config{InsecureSkipVerify: sslConf.SkipVerify}
+        con = tls.Client(con, conf)
     }
 
     log.Printf("Connected successfully to %v", host)
