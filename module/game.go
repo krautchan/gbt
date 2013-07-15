@@ -15,6 +15,7 @@ import (
     "github.com/krautchan/gbt/net/irc"
 
     "math/rand"
+    "strconv"
     "strings"
     "time"
 )
@@ -44,11 +45,14 @@ func (self *GameModule) GetCommands() map[string]string {
         "choice":   "ITEM ITEM - Choose between two items",
         "yn":       "QUESTION - The ghost in the machine answers a yes or no question",
         "roulette": "- Russian roulette",
-        "rot13":    "INPUT - Encrypt INPUT with rot13"}
+        "rot13":    "INPUT - Encrypt INPUT with rot13",
+        "dice":     "- Roll a dice"}
 }
 
 func (self *GameModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
     switch cmd {
+    case "dice":
+        c <- self.Reply(srvMsg, strconv.Itoa(rand.Intn(6)+1))
     case "rot13":
         if len(params) == 0 {
             return
