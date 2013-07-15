@@ -5,10 +5,13 @@
 // you can do whatever you want with this stuff. If we meet some day, and you think
 // this stuff is worth it, you can buy me a pizza in return.
 
+// TODO: Reply to configurable sentences
+
 package module
 
 import (
     "github.com/krautchan/gbt/module/api"
+    "github.com/krautchan/gbt/module/api/crypto"
     "github.com/krautchan/gbt/net/irc"
 
     "math/rand"
@@ -40,13 +43,18 @@ func (self *GameModule) GetCommands() map[string]string {
         "8ball":    "QUESTION - A magical being will answer all your questions",
         "choice":   "ITEM ITEM - Choose between two items",
         "yn":       "QUESTION - The ghost in the machine answers a yes or no question",
-        "roulette": "- Russian roulette"}
+        "roulette": "- Russian roulette",
+        "rot13":    "INPUT - Encrypt INPUT with rot13"}
 }
-
-// TODO: Reply to configurable sentences
 
 func (self *GameModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
     switch cmd {
+    case "rot13":
+        if len(params) == 0 {
+            return
+        }
+        msg := strings.Join(params, " ")
+        c <- self.Reply(srvMsg, crypto.Rot13(msg))
     case "roulette":
         ch := srvMsg.Target
 

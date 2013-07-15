@@ -21,26 +21,25 @@
         </header>
         <div class="main">
 
-    <h2>GameModule</h2>
-    <p>A collection of mini games</p>
+    <h2>FortuneModule</h2>
+    <p>This Module posts quotes from the fortune database to a channel</p>
 
-<h3>Configuration&lt;</h3>
+<h3>Configuration</h3>
 
-<p>- NONE -</p>
+<p>fortune.conf</p>
 
-<h3>Commands&lt;</h3>
+<pre><code>{&quot;Config&quot;:{
+    &quot;db-path&quot;:&quot;/usr/share/games/fortunes&quot;
+}}
+</code></pre>
+
+<p>If <var>run</var> is set to false the module won&rsquo;t run.</p>
+
+<h3>Commands</h3>
 
 <dl>
-    <dt><code>&#38;8ball QUESTION</code></dt>
-    <dd>A magical being will answer all your questions</dd>
-    <dt><code>&#38;choice ITEM ITEM ...</code></dt>
-    <dd>Choose between items</dd>
-    <dt><code>&#38;yn QUESTION</code></dt>
-    <dd>The ghost in the machine answers a yes or no question</dd>
-    <dt><code>&#38;roulette</code></dt>
-    <dd>Russian roulette</dd>
-    <dt><code>&#38;rot13 INPUT</code></dt>
-    <dd>Encrypt INPUT with rot13</dd>
+    <dt><code>&fortune [CATEGORY]</code></dt><dd>Send fortune to channel if CATEGORY is given the fortune will be from that category</dd>
+    <dt><code>&fortune.list</code></dt><dd>List all available categories</dd>
 </dl>
 
         </div>
