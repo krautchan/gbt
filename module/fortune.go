@@ -147,9 +147,7 @@ func (self *FortuneModule) ExecuteCommand(cmd string, params []string, srvMsg *i
             }
         }
 
-        if len(quote) > 0 {
-            c <- self.Reply(srvMsg, quote)
-        }
+        self.sendMessage(srvMsg, quote, c)
 
     case "fortune.list":
         msg := "Categories:"
@@ -157,6 +155,25 @@ func (self *FortuneModule) ExecuteCommand(cmd string, params []string, srvMsg *i
         for i := range self.fortunes {
             msg += " " + self.fortunes[i].category
         }
-        c <- self.Reply(srvMsg, msg)
+        self.sendMessage(srvMsg, msg, c)
+    }
+}
+
+func (f *FortuneModule) sendMessage(srvMsg *irc.PrivateMessage, msg string, c chan irc.ClientMessage) {
+    if len(msg) == 0 {
+        return
+    }
+    if len(msg) > 450 {
+        m := ""
+        for _, r := range msg {
+            if len(m) >= 400 {
+                c <- f.Reply(srvMsg, m)
+                m = ""
+            }
+            m += string(r)
+        }
+        c <- f.Reply(srvMsg, m)
+    } else {
+        c <- f.Reply(srvMsg, msg)
     }
 }
