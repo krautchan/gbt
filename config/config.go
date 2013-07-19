@@ -16,6 +16,7 @@ import (
 )
 
 var conf_dir string
+var Version string
 
 func CreateConfigPath(path string) {
     os.MkdirAll(conf_dir+path, 0775)

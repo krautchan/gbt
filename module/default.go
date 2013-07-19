@@ -8,6 +8,7 @@
 package module
 
 import (
+    "github.com/krautchan/gbt/config"
     "github.com/krautchan/gbt/module/api"
     "github.com/krautchan/gbt/module/api/interfaces"
     "github.com/krautchan/gbt/net/irc"
@@ -105,12 +106,15 @@ func (self *DefaultModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan 
 
 func (self *DefaultModule) GetCommands() map[string]string {
     return map[string]string{
-        "whoami": "- Tells you who you are",
-        "help":   "[COMMAND] - Show help"}
+        "whoami":  "- Tells you who you are",
+        "help":    "[COMMAND] - Show help",
+        "version": "Send current running gbt version"}
 }
 
 func (self *DefaultModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
     switch cmd {
+    case "version":
+        c <- self.Reply(srvMsg, config.Version)
     case "whoami":
         c <- self.Reply(srvMsg, srvMsg.From())
     case "help":
