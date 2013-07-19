@@ -35,7 +35,7 @@ func (p *PushModule) Load() error {
 
 func (p *PushModule) GetCommands() map[string]string {
     return map[string]string{
-        "push": "MESSAGE - Push MESSAGE to the pushover"}
+        "push": "MESSAGE - Push MESSAGE to pushover"}
 }
 
 func (p *PushModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
