@@ -27,7 +27,7 @@ func TestGetTimezone(t *testing.T) {
 
 func TestGetLocalTime(t *testing.T) {
 
-    id, err := GetLocalTime(52.5191710, 13.40609120)
+    id, err := GetTimeZoneId(52.5191710, 13.40609120)
     if err != nil {
         t.Fatalf("%v", err)
     }

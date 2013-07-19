@@ -48,7 +48,6 @@ func getTimezone(lat, lng float64, utc int64) (*Timezone, error) {
 
 func GetTimeZoneId(lat, lng float64) (string, error) {
     utc := time.Now().UTC().Unix()
-    println(utc, time.Now().Unix())
     zone, err := getTimezone(lat, lng, utc)
     if err != nil {
         return "", err
