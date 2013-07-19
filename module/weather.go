@@ -9,41 +9,13 @@ package module
 
 import (
     "github.com/krautchan/gbt/module/api"
+    "github.com/krautchan/gbt/module/api/weather"
     "github.com/krautchan/gbt/net/irc"
 
-    "encoding/xml"
     "fmt"
     "log"
-    "net/http"
-    "net/url"
     "strings"
 )
-
-const AUTO_URL = "http://autocomplete.wunderground.com/aq?format=xml&query=%v"
-const WEATHER_URL = "http://api.wunderground.com/api/19dfaf9fb009b00d/conditions%v.xml"
-
-type Results struct {
-    L []string `xml:"l"`
-}
-
-type Response struct {
-    CurrentObservation CurrentObservation `xml:"current_observation"`
-}
-
-type CurrentObservation struct {
-    DisplayLocation DisplayLocation `xml:"display_location"`
-    Weather         string          `xml:"weather"`
-    Temp_f          string          `xml:"temp_f"`
-    Temp_c          string          `xml:"temp_c"`
-    Humidity        string          `xml:"relative_humidity"`
-    Wind_dir        string          `xml:"wind_dir"`
-    Wind_kph        string          `xml:"wind_kph"`
-    Pressure_mb     string          `xml:"pressure_mb"`
-}
-
-type DisplayLocation struct {
-    Full string `xml:"full"`
-}
 
 // Request weather data from wunderground.
 type WeatherModule struct {
@@ -59,7 +31,8 @@ func (self *WeatherModule) Load() error {
 }
 
 func (self *WeatherModule) GetCommands() map[string]string {
-    return map[string]string{"weather": "CITY - Shows you the current weather in CITY"}
+    return map[string]string{"weather": "CITY - Shows you the current weather in CITY",
+        "weather.forecast": "CITY - Shows you a forecast for the next 3 days"}
 }
 
 func (self *WeatherModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
@@ -67,44 +40,31 @@ func (self *WeatherModule) ExecuteCommand(cmd string, params []string, srvMsg *i
         return
     }
 
-    s := url.QueryEscape(strings.Join(params, " "))
-
-    resp, err := http.Get(fmt.Sprintf(AUTO_URL, s))
+    s := strings.Join(params, " ")
+    w, err := weather.FetchWeather(s)
     if err != nil {
         log.Printf("%v", err)
         return
     }
 
-    var auto Results
-    dec := xml.NewDecoder(resp.Body)
-    err = dec.Decode(&auto)
-    if err != nil {
-        log.Printf("%v", err)
-        resp.Body.Close()
-        return
-    }
-    resp.Body.Close()
+    switch cmd {
+    case "weather":
+        c <- self.Reply(srvMsg, fmt.Sprintf("Weather: %s | %s°C(%s°F) - %s | Wind: %skph %s | Humidity: %s%% | Pressure: %smb",
+            w.Request.Query, w.CurrentCondition.TempC, w.CurrentCondition.TempF,
+            w.CurrentCondition.WeatherDesc, w.CurrentCondition.WindspeedKmph,
+            w.CurrentCondition.Winddir16Point, w.CurrentCondition.Humidity,
+            w.CurrentCondition.Pressure))
+    case "weather.forecast":
+        if len(w.Weather) == 0 {
+            return
+        }
 
-    if len(auto.L) < 1 {
-        return
-    }
-    resp, err = http.Get(fmt.Sprintf(WEATHER_URL, auto.L[0]))
-    if err != nil {
-        log.Printf("%v", err)
-        return
-    }
-    defer resp.Body.Close()
+        c <- self.Reply(srvMsg, fmt.Sprintf("Forecast for %s", w.Request.Query))
+        for _, f := range w.Weather {
+            c <- self.Reply(srvMsg, fmt.Sprintf("Day: %s | Temperature: %s°C(%s°F) - %s°C(%s°F) - %s",
+                f.Date, f.TempMinC, f.TempMinF, f.TempMaxC, f.TempMaxF,
+                f.WeatherDesc))
+        }
 
-    var weather Response
-    dec = xml.NewDecoder(resp.Body)
-    err = dec.Decode(&weather)
-    if err != nil {
-        log.Printf("%v", err)
-        return
     }
-
-    c <- self.Reply(srvMsg, fmt.Sprintf("Weather: %v | %v°C(%v°F) - %v | Wind: %vkph %v | Humidity: %v | Pressure: %vmb",
-        weather.CurrentObservation.DisplayLocation.Full, weather.CurrentObservation.Temp_c, weather.CurrentObservation.Temp_f,
-        weather.CurrentObservation.Weather, weather.CurrentObservation.Wind_kph, weather.CurrentObservation.Wind_dir,
-        weather.CurrentObservation.Humidity, weather.CurrentObservation.Pressure_mb))
 }
