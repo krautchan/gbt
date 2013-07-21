@@ -1,16 +1,28 @@
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Open Sans Light'), local('OpenSans-Light'), url(/static/opensans.woff) format('woff');
+}
+@font-face {
+  font-family: 'Inconsolata';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Inconsolata'), url(/static/inconsolata.woff) format('woff');
+}
 body {
     font-family: 'Open Sans', sans-serif;
-    font-size: 90%;
+    font-size: 100%;
 }
 code {
     background-color: #F5F5F5;
-    font-family: 'Droid Sans Mono', sans-serif;
-    font-size: 80%;
+    font-family: 'Inconsolata', sans-serif;
+    font-size: 100%;
 }
 pre {
     background-color: #F5F5F5;
-    font-family: 'Droid Sans Mono', sans-serif;
-    font-size: 80%;
+    font-family: 'Inconsolata', sans-serif;
+    font-size: 95%;
 }
 header {
     margin: 0 auto;
@@ -26,7 +38,7 @@ footer {
 }
 #logo {
     float: left;
-    height: 60px;
+    height: 55px;
     padding-right: 30px;
 }
 a:link {
