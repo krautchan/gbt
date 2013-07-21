@@ -8,61 +8,80 @@
 package module
 
 import (
-    "github.com/krautchan/gbt/module/api"
-    "github.com/krautchan/gbt/module/api/geocode"
-    "github.com/krautchan/gbt/module/api/timezone"
-    "github.com/krautchan/gbt/net/irc"
+	"github.com/krautchan/gbt/module/api"
+	"github.com/krautchan/gbt/module/api/geocode"
+	"github.com/krautchan/gbt/module/api/timezone"
+	"github.com/krautchan/gbt/net/irc"
 
-    "log"
-    "strings"
-    "time"
+	"fmt"
+	"log"
+	"strings"
+	"time"
 )
 
 type TimeModule struct {
-    api.ModuleApi
+	api.ModuleApi
 }
 
 func NewTimeModule() *TimeModule {
-    return &TimeModule{}
+	return &TimeModule{}
 }
 
 func (t *TimeModule) Load() error {
-    return nil
+	return nil
 }
 
 func (p *TimeModule) GetCommands() map[string]string {
-    return map[string]string{
-        "time": "[CITY] - Get the local server time or the time of CITY + Timezone"}
+	return map[string]string{
+		"time":  "[CITY] - Get the local server time or the time of CITY + Timezone",
+		"coord": "CITY - Get the coordinates of a City"}
 }
 
 func (p *TimeModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
 
-    now := time.Now()
+	switch cmd {
+	case "coord":
+		if len(params) == 0 {
+			return
+		}
 
-    if len(params) == 0 {
-        c <- p.Reply(srvMsg, now.Format(time.RFC822))
+		city := strings.Join(params, " ")
+		lat, lng, err := geocode.GetLocation(city)
+		if err != nil {
+			log.Printf("%v", err)
+			return
+		}
 
-    } else {
-        city := strings.Join(params, " ")
-        lat, lng, err := geocode.GetLocation(city)
-        if err != nil {
-            log.Printf("%v", err)
-            return
-        }
+		c <- p.Reply(srvMsg, fmt.Sprintf("%.4f, %.4f", lat, lng))
 
-        id, err := timezone.GetTimeZoneId(lat, lng)
-        if err != nil {
-            log.Printf("%v", err)
-            return
-        }
+	case "time":
+		now := time.Now()
 
-        loc, err := time.LoadLocation(id)
-        if err != nil {
-            log.Printf("%v", err)
-            return
-        }
-        now = now.In(loc)
+		if len(params) == 0 {
+			c <- p.Reply(srvMsg, now.Format(time.RFC822))
 
-        c <- p.Reply(srvMsg, now.Format(time.RFC822))
-    }
+		} else {
+			city := strings.Join(params, " ")
+			lat, lng, err := geocode.GetLocation(city)
+			if err != nil {
+				log.Printf("%v", err)
+				return
+			}
+
+			id, err := timezone.GetTimeZoneId(lat, lng)
+			if err != nil {
+				log.Printf("%v", err)
+				return
+			}
+
+			loc, err := time.LoadLocation(id)
+			if err != nil {
+				log.Printf("%v", err)
+				return
+			}
+			now = now.In(loc)
+
+			c <- p.Reply(srvMsg, now.Format(time.RFC822))
+		}
+	}
 }
