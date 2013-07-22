@@ -44,8 +44,11 @@ func (self *WeatherModule) ExecuteCommand(cmd string, params []string, srvMsg *i
     s := strings.Join(params, " ")
     w, err := weather.FetchWeather(s)
     if err != nil {
-        log.Printf("%v", err)
-        return
+        w, err = weather.FetchWundergroundCurrentConditions(s)
+        if err != nil {
+            log.Printf("%v", err)
+            return
+        }
     }
 
     switch cmd {
