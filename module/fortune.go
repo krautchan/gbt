@@ -43,6 +43,8 @@ func (f *FortuneModule) Load() error {
     }
     dir, _ := f.GetConfigStringValue("db-path")
     f.fortunes = f.loadFortunes(dir)
+
+    log.Println("Loaded FortuneModule")
     return nil
 }
 

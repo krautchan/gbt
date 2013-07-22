@@ -30,6 +30,7 @@ func (p *PushModule) Load() error {
         p.SetConfigValue("pushover", conf)
     }
 
+    log.Println("Loaded PushModule")
     return nil
 }
 

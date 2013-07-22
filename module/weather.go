@@ -27,6 +27,7 @@ func NewWeatherModule() *WeatherModule {
 }
 
 func (self *WeatherModule) Load() error {
+    log.Println("Loaded WeatherModule")
     return nil
 }
 

@@ -43,6 +43,7 @@ func NewWebModule() *WebModule {
 }
 
 func (w *WebModule) Load() error {
+    log.Println("Loaded WebModule")
     return nil
 }
 

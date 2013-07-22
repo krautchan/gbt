@@ -13,6 +13,7 @@ import (
 
     "errors"
     "fmt"
+    "log"
 )
 
 type QauthModule struct {
@@ -47,6 +48,7 @@ func (n *QauthModule) Load() error {
         return errors.New("Qauth: Module disabled in config")
     }
 
+    log.Println("Loaded QauthModule")
     return nil
 }
 

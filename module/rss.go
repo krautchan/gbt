@@ -32,6 +32,7 @@ func (self *RSSModule) Load() error {
         self.SetConfigValue("feeds", make(map[string]string))
     }
 
+    log.Println("Loaded RssModule")
     return nil
 }
 

@@ -13,6 +13,7 @@ import (
 
     "errors"
     "fmt"
+    "log"
 )
 
 type NickservModule struct {
@@ -42,6 +43,7 @@ func (n *NickservModule) Load() error {
         return errors.New("Nickserv: Module disabled in config")
     }
 
+    log.Println("Loaded NickservModule")
     return nil
 }
 

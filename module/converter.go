@@ -37,7 +37,6 @@ func NewConverterModule() *ConverterModule {
 
 func (self *ConverterModule) Load() error {
     log.Println("Loaded ConverterModule")
-
     return nil
 }
 

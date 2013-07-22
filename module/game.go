@@ -14,6 +14,7 @@ import (
     "github.com/krautchan/gbt/module/api/crypto"
     "github.com/krautchan/gbt/net/irc"
 
+    "log"
     "math/rand"
     "strconv"
     "strings"
@@ -36,6 +37,7 @@ func NewGameModule() *GameModule {
 
 func (self *GameModule) Load() error {
     rand.Seed(time.Now().UnixNano())
+    log.Println("Loaded GameModule")
     return nil
 }
 

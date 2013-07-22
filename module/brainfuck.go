@@ -13,6 +13,7 @@ import (
     "github.com/krautchan/gbt/net/irc"
 
     "fmt"
+    "log"
     "strings"
 )
 
@@ -35,6 +36,8 @@ func (self *BrainfuckModule) Load() error {
             return err
         }
     }
+
+    log.Println("Loaded BrainfuckModule")
     return nil
 }
 
