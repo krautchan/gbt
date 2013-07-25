@@ -45,14 +45,21 @@ func (self *GameModule) GetCommands() map[string]string {
     return map[string]string{
         "8ball":    "QUESTION - A magical being will answer all your questions",
         "choice":   "ITEM ITEM - Choose between two items",
-        "yn":       "QUESTION - The ghost in the machine answers a yes or no question",
-        "roulette": "- Russian roulette",
+        "dice":     "- Roll a dice",
+        "morse":    "TEXT - Translate TEXT into morse code",
         "rot13":    "INPUT - Encrypt INPUT with rot13",
-        "dice":     "- Roll a dice"}
+        "roulette": "- Russian roulette",
+        "yn":       "QUESTION - The ghost in the machine answers a yes or no question"}
 }
 
 func (self *GameModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
     switch cmd {
+    case "morse":
+        if len(params) == 0 {
+            return
+        }
+
+        c <- self.Reply(srvMsg, crypto.Morse(strings.Join(params, " ")))
     case "dice":
         c <- self.Reply(srvMsg, strconv.Itoa(rand.Intn(6)+1))
     case "rot13":

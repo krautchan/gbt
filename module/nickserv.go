@@ -8,56 +8,56 @@
 package module
 
 import (
-	"github.com/krautchan/gbt/module/api"
-	"github.com/krautchan/gbt/net/irc"
+    "github.com/krautchan/gbt/module/api"
+    "github.com/krautchan/gbt/net/irc"
 
-	"errors"
-	"fmt"
-	"log"
-	"strings"
+    "errors"
+    "fmt"
+    "log"
+    "strings"
 )
 
 type NickservModule struct {
-	api.ModuleApi
+    api.ModuleApi
 }
 
 func NewNickservModule() *NickservModule {
-	return &NickservModule{}
+    return &NickservModule{}
 }
 
 func (n *NickservModule) Load() error {
-	if err := n.InitConfig("nickserv.conf"); err != nil {
-		if err := n.SetConfigValue("enabled", "false"); err != nil {
-			return errors.New("Nickserv: Could not create config file: " + err.Error())
-		}
-		if err := n.SetConfigValue("password", "abcdefg"); err != nil {
-			return errors.New("Nickserv: Could not create config file: " + err.Error())
-		}
-	}
+    if err := n.InitConfig("nickserv.conf"); err != nil {
+        if err := n.SetConfigValue("enabled", "false"); err != nil {
+            return errors.New("Nickserv: Could not create config file: " + err.Error())
+        }
+        if err := n.SetConfigValue("password", "abcdefg"); err != nil {
+            return errors.New("Nickserv: Could not create config file: " + err.Error())
+        }
+    }
 
-	v, err := n.GetConfigStringValue("enabled")
-	if err != nil {
-		return errors.New("Nickserv: Could not read config file: " + err.Error())
-	}
+    v, err := n.GetConfigStringValue("enabled")
+    if err != nil {
+        return errors.New("Nickserv: Could not read config file: " + err.Error())
+    }
 
-	if v != "true" {
-		return errors.New("Nickserv: Module disabled in config")
-	}
+    if v != "true" {
+        return errors.New("Nickserv: Module disabled in config")
+    }
 
-	log.Println("Loaded NickservModule")
-	return nil
+    log.Println("Loaded NickservModule")
+    return nil
 }
 
 func (self *NickservModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan irc.ClientMessage) {
-	switch srvMsg := srvMsg.(type) {
-	case *irc.NoticeMessage:
-		if strings.Contains(srvMsg.Text, "This nickname is registered") && strings.HasPrefix(srvMsg.From(), "NickServ") {
-			pw, err := self.GetConfigStringValue("password")
-			if err != nil || len(pw) == 0 {
-				return
-			}
+    switch srvMsg := srvMsg.(type) {
+    case *irc.NoticeMessage:
+        if strings.Contains(srvMsg.Text, "This nickname is registered") && strings.HasPrefix(srvMsg.From(), "NickServ") {
+            pw, err := self.GetConfigStringValue("password")
+            if err != nil || len(pw) == 0 {
+                return
+            }
 
-			c <- self.Privmsg("nickserv", fmt.Sprintf("identify %s", pw))
-		}
-	}
+            c <- self.Privmsg("nickserv", fmt.Sprintf("identify %s", pw))
+        }
+    }
 }
