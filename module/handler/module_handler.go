@@ -40,11 +40,12 @@ func NewModuleHandler(serverName string, serverAddr string) *ModuleHandler {
             module.NewFortuneModule(),
             module.NewQauthModule(),
             module.NewPushModule(),
-            module.NewTimeModule()},
+            module.NewTimeModule(),
+            module.NewTranslateModule()},
         state: &interfaces.IrcState{ServerName: serverName,
             ServerAddr: serverAddr,
             MyName:     "",
-            MyChannels: make([]string, 0),
+            MyChannels: make(map[string][]string),
             Identified: make([]string, 0)}}
 }
 

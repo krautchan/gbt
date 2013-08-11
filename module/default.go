@@ -64,7 +64,8 @@ func (self *DefaultModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan 
         c <- self.Nick(nick)
         c <- self.Raw(fmt.Sprintf("User %s 0 * :%s", user, name))
     case *irc.NumericMessage:
-        if srvMsg.Number == irc.WELCOME {
+        switch srvMsg.Number {
+        case irc.WELCOME:
             self.UpdateMyName(srvMsg.Parameter[0])
         }
     case *irc.JoinMessage:
@@ -72,12 +73,20 @@ func (self *DefaultModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan 
             self.AddChannel(srvMsg.Channel)
         }
 
+        self.AddUserToChannel(srvMsg.From(), srvMsg.Channel)
+
         if strings.HasPrefix(srvMsg.From(), "AlphaBernd!") {
             c <- self.Privmsg(srvMsg.Channel, "What is thy bidding, my master?") // Star Wars für den Endsieg
         }
     case *irc.PartMessage:
         if strings.HasPrefix(srvMsg.From(), self.GetMyName()+"!") {
             self.RemoveChannel(srvMsg.Channel)
+        } else {
+            self.RemoveUserFromChannel(srvMsg.From(), srvMsg.Channel)
+        }
+    case *irc.QuitMessage:
+        for _, v := range self.GetMyChannels() {
+            self.RemoveUserFromChannel(srvMsg.From(), v)
         }
     case *irc.PingMessage:
         nick := self.GetMyName()

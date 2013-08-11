@@ -17,7 +17,7 @@ type IrcState struct {
     ServerName string
     ServerAddr string
     MyName     string
-    MyChannels []string
+    MyChannels map[string][]string
     Identified []string
     Mutex      sync.RWMutex
 }

@@ -239,33 +239,6 @@ func (self *ModuleApi) AddIdentified(user string) {
     self.state.Identified = append(self.state.Identified, user)
 }
 
-// Add a channel the bot is currently connected to
-func (self *ModuleApi) AddChannel(channel string) {
-    self.state.Mutex.Lock()
-    defer self.state.Mutex.Unlock()
-
-    self.state.MyChannels = append(self.state.MyChannels, channel)
-}
-
-// Remove a channel from the current channel list
-func (self *ModuleApi) RemoveChannel(channel string) {
-    self.state.Mutex.Lock()
-    defer self.state.Mutex.Unlock()
-
-    i := 0
-    for ; i < len(self.state.MyChannels); i++ {
-        if self.state.MyChannels[i] == channel {
-            break
-        }
-    }
-
-    if i < len(self.state.MyChannels) {
-        self.state.MyChannels[i] = self.state.MyChannels[len(self.state.MyChannels)-1]
-        self.state.MyChannels = self.state.MyChannels[0 : len(self.state.MyChannels)-1]
-    }
-
-}
-
 // Test if a user is identified with the bot
 func (self *ModuleApi) IsIdentified(user string) bool {
     self.state.Mutex.RLock()
@@ -280,15 +253,82 @@ func (self *ModuleApi) IsIdentified(user string) bool {
     return false
 }
 
+// Add a channel the bot is currently connected to
+func (self *ModuleApi) AddChannel(channel string) {
+    self.state.Mutex.Lock()
+    defer self.state.Mutex.Unlock()
+
+    if _, ok := self.state.MyChannels[channel]; !ok {
+        self.state.MyChannels[channel] = make([]string, 0)
+    }
+}
+
+// Remove a channel from the current channel list
+func (self *ModuleApi) RemoveChannel(channel string) {
+    self.state.Mutex.Lock()
+    defer self.state.Mutex.Unlock()
+
+    delete(self.state.MyChannels, channel)
+}
+
+// AddUserToChannel adds a user to a channel
+func (self *ModuleApi) AddUserToChannel(user, channel string) error {
+    self.state.Mutex.Lock()
+    defer self.state.Mutex.Unlock()
+
+    if _, ok := self.state.MyChannels[channel]; !ok {
+        return errors.New("Unknown channel")
+    }
+
+    for _, v := range self.state.MyChannels[channel] {
+        if v == user {
+            return nil
+        }
+    }
+
+    self.state.MyChannels[channel] = append(self.state.MyChannels[channel], user)
+
+    return nil
+}
+
+// RemoveUserFromChannel removes a User from a channel
+func (self *ModuleApi) RemoveUserFromChannel(user, channel string) {
+    self.state.Mutex.Lock()
+    defer self.state.Mutex.Unlock()
+
+    if _, ok := self.state.MyChannels[channel]; !ok {
+        return
+    }
+
+    for i, v := range self.state.MyChannels[channel] {
+        if v == user {
+            self.state.MyChannels[channel] = self.state.MyChannels[channel][:i+copy(self.state.MyChannels[channel][i:], self.state.MyChannels[channel][i+1:])]
+            return
+        }
+    }
+}
+
 // Return a list of channels the bot is currently connected to
 func (self *ModuleApi) GetMyChannels() []string {
     self.state.Mutex.RLock()
     defer self.state.Mutex.RUnlock()
 
-    ret := make([]string, len(self.state.MyChannels))
-    copy(ret, self.state.MyChannels)
+    chans := []string{}
 
-    return ret
+    for k := range self.state.MyChannels {
+        chans = append(chans, k)
+    }
+
+    return chans
+}
+
+// GetUsers returns a list of users in a channel
+func (self *ModuleApi) GetUsers(channel string) ([]string, error) {
+    if usr, ok := self.state.MyChannels[channel]; ok {
+        return usr, nil
+    }
+
+    return nil, errors.New("Unkown channel")
 }
 
 // Return the current bot nickname
