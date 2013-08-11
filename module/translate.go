@@ -31,8 +31,8 @@ func (self *TranslateModule) Load() error {
 
 func (self *TranslateModule) GetCommands() map[string]string {
     return map[string]string{
-        "translate.lang": " - Get a list of possible languages",
-        "translate":      "[LANG1-LANG2] - Translate from LANG1 to LANG2, if no language is give autodetect input language and translate to english"}
+        "translate.lang": " - Get a list of supported languages",
+        "translate":      "[LANG1-LANG2] TEXT- Translate TEXT from LANG1 to LANG2, if no language is given autodetect input language and translate to english"}
 }
 
 func (self *TranslateModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {

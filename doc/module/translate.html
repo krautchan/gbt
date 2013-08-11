@@ -16,8 +16,8 @@
         </header>
         <div class="main">
 
-    <h2>GameModule</h2>
-    <p>A collection of mini games</p>
+    <h2>TranslateModule</h2>
+    <p>This module translates text between languages</p>
 
 <h3>Configuration</h3>
 
@@ -26,20 +26,8 @@
 <h3>Commands</h3>
 
 <dl>
-    <dt><code>&#38;8ball QUESTION</code></dt>
-    <dd>A magical being will answer all your questions</dd>
-    <dt><code>&#38;choice ITEM ITEM ...</code></dt>
-    <dd>Choose between items</dd>
-    <dt><code>&#38;dice</code></dt>
-    <dd>Roll a six sided dice</dd>
-    <dt><code>&#38;morse TEXT</code></dt>
-    <dd>Translate TEXT into Morse code</dd>
-    <dt><code>&#38;rot13 INPUT</code></dt>
-    <dd>Encrypt INPUT with rot13</dd>
-    <dt><code>&#38;roulette</code></dt>
-    <dd>Russian roulette</dd>
-    <dt><code>&#38;yn QUESTION</code></dt>
-    <dd>The ghost in the machine answers a yes or no question</dd>
+    <dt><code>&#38;translate [LANG1-LANG2] TEXT</code></dt><dd>Translate TEXT from LANG1 to LANG2, if no language is given autodetect input language and translate to english</dd>
+    <dt><code>&#38;translate.lang</code></dt><dd>Get a list of supported languages</dd>
 </dl>
 
         </div>
