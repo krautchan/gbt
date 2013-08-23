@@ -3,4 +3,4 @@ go:
   - 1.1
 notifications:
   email: false
-  irc: "irc.dev-urandom.eu#gbt"
+  irc: "irc.dev-urandom.eu#paradoxthread"
