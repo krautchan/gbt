@@ -12,8 +12,9 @@ import (
 )
 
 type lastFMResponse struct {
-    XMLName      xml.Name           `xml:"lfm"`
-    Status       string             `xml:"status,attr"`
-    RecentTracks LastFMRecentTracks `xml:"recenttracks"`
-    Error        string             `xml:"error"`
+    XMLName      xml.Name            `xml:"lfm"`
+    Status       string              `xml:"status,attr"`
+    RecentTracks *LastFMRecentTracks `xml:"recenttracks"`
+    User         *LastFMUser         `xml:"user"`
+    Error        string              `xml:"error"`
 }

@@ -8,6 +8,7 @@
 package module
 
 import (
+    "fmt"
     "github.com/krautchan/gbt/module/api"
     "github.com/krautchan/gbt/module/api/lastfm"
     "github.com/krautchan/gbt/net/irc"
@@ -38,37 +39,47 @@ func (m *MusicModule) Load() error {
 
 func (m *MusicModule) GetCommands() map[string]string {
     return map[string]string{
-        "np": "[NICK] - Print last song that NICK listened to"}
+        "np":        "[NICK] - Print last song that NICK listened to",
+        "lfm.total": "[NICK] - Print the total number of songs NICK has listened to"}
 }
 
 func (m *MusicModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
+    user, _ := m.GetConfigStringValue("lfm_default")
+    msg := user
+
+    if len(params) > 0 {
+        user = params[0]
+        msg = params[0]
+    }
+
+    if lfmmap, err := m.GetConfigMapValue("lfm_map"); err == nil {
+        lfu, ok := lfmmap[user]
+        if ok {
+            user = lfu
+        }
+    }
+
+    key, err := m.GetConfigStringValue("lfm_api_key")
+    if err != nil {
+        return
+    }
+
+    secret, err := m.GetConfigStringValue("lfm_api_secret")
+    if err != nil {
+        return
+    }
 
     switch cmd {
+    case "lfm.total":
+        lfm := lastfm.NewLastFM(key, secret)
+
+        info, err := lfm.GetInfo(user)
+        if err != nil {
+            return
+        }
+
+        c <- m.Reply(srvMsg, fmt.Sprintf("%s has listened to %d songs", msg, info.Playcount))
     case "np":
-        user, _ := m.GetConfigStringValue("lfm_default")
-        msg := user
-
-        if len(params) > 0 {
-            user = params[0]
-            msg = params[0]
-        }
-
-        if lfmmap, err := m.GetConfigMapValue("lfm_map"); err == nil {
-            lfu, ok := lfmmap[user]
-            if ok {
-                user = lfu
-            }
-        }
-
-        key, err := m.GetConfigStringValue("lfm_api_key")
-        if err != nil {
-            return
-        }
-
-        secret, err := m.GetConfigStringValue("lfm_api_secret")
-        if err != nil {
-            return
-        }
 
         lfm := lastfm.NewLastFM(key, secret)
 
@@ -78,9 +89,9 @@ func (m *MusicModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.Pr
         }
 
         if tracks[0].NowPlaying {
-            c <- m.Reply(srvMsg, msg+" is listening to "+tracks[0].Artist.Name+" - "+tracks[0].Title)
+            c <- m.Reply(srvMsg, fmt.Sprintf("%s is listening to %s - %s", msg, tracks[0].Artist.Name, tracks[0].Title))
         } else {
-            c <- m.Reply(srvMsg, msg+" last listened to "+tracks[0].Artist.Name+" - "+tracks[0].Title+" ("+tracks[0].Date.LocalTime().Format(time.RFC1123)+")")
+            c <- m.Reply(srvMsg, fmt.Sprintf("%s last listened to %s - %s (%s)", msg, tracks[0].Artist.Name, tracks[0].Title, tracks[0].Date.LocalTime().Format(time.RFC1123)))
         }
     }
 }

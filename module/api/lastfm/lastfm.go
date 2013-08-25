@@ -23,6 +23,25 @@ func NewLastFM(api_key, api_secret string) *LastFM {
     return &LastFM{api_key: api_key, api_secret: api_secret}
 }
 
+//User
+
+func (self *LastFM) GetInfo(user string) (*LastFMUser, error) {
+    params := make(map[string]string)
+    params["method"] = "user.getinfo"
+    params["user"] = url.QueryEscape(user)
+
+    lfmresp, err := self.sendRequest(params)
+    if err != nil {
+        return nil, err
+    }
+
+    if lfmresp.User == nil {
+        return nil, errors.New("User is nil")
+    }
+
+    return lfmresp.User, nil
+}
+
 func (self *LastFM) GetRecentTracks(user string) ([]*LastFMTrack, error) {
     params := make(map[string]string)
     params["method"] = "user.getrecenttracks"
@@ -31,6 +50,10 @@ func (self *LastFM) GetRecentTracks(user string) ([]*LastFMTrack, error) {
     lfmresp, err := self.sendRequest(params)
     if err != nil {
         return nil, err
+    }
+
+    if lfmresp.RecentTracks == nil {
+        return nil, errors.New("Recent tracks is nil")
     }
 
     if len(lfmresp.RecentTracks.Tracks) > 0 {
