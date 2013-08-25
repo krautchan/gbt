@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>gbt - a irc bot written in go</title>
+        <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+        <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+        <link rel="stylesheet" type="text/css" href="/static/style.css">
+    </head>
+    <body>
+        <a href="https://github.com/krautchan/gbt">
+            <img style="position: absolute; top: 0; right: 0; border: 0;" src="/static/forkme.png" alt="Fork me on GitHub">
+        </a>
+        <header>
+            <img id="logo" src="/static/logo.png" alt="gbt logo">
+            <h1><a href="/">GBT - a irc bot written in go</a></h1>
+        </header>
+        <div class="main">
+
+    <h2>MusicModule</h2>
+    <p>Different music related function. At the moment only current tracks on last.fm are implemented.</p>
+
+<h3>Configuration</h3>
+
+<p>gbt.conf</p>
+
+<pre><code>{&quot;Config&quot;:{
+    &quot;lfm_default&quot;:&quot;AlphaBernd&quot;,
+    &quot;lfm_map&quot;:{
+        &quot;AlphaBernd&quot;:&quot;rj&quot;
+    }
+ }}
+</code></pre>
+
+<p>With lfm_default is the default nick for last.fm queries. lfm_map maps irc nicknames to last.fm nicknames.</p>
+
+<h3>Commands</h3>
+
+<dl>
+  <dt><code>&np [NICK]</code></dt><dd>Print the last scrobbled song from NICK. If NICK is not given the default nick is used.</dd>
+</dl>
+
+        </div>
+        <footer>
+            <a href="https://travis-ci.org/krautchan/gbt"><img height="17" src="/static/travis.png" alt="Travis CI"></a><br>
+            Created by <a href="https://github.com/alphabernd">AlphaBernd</a>(whoami@dev-urandom.eu <a href="https://id.dev-urandom.eu/gpg/whoami_public.asc">PGP-Key</a>)</footer>
+    </body>
+</html>
+
