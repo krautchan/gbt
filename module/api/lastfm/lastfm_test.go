@@ -12,10 +12,20 @@ import (
 )
 
 func TestGetRecentTracks(t *testing.T) {
-    tracks, err := GetRecentTracks("test")
+    lfm := NewLastFM("ad1ec2d483b70a07fb105b177361027b", "8f18ad782dc8e013cb3dc4d8a0bdc73b")
+
+    tracks, err := lfm.GetRecentTracks("test")
 
     if err != nil {
         t.Fatalf("Error: %v", err)
+    }
+
+    if tracks[0].Artist.Name != "Nine Inch Nails" {
+        t.Fatalf("Error wrong artist: %v expected: Nine Inch Nails", tracks[0].Artist.Name)
+    }
+
+    if tracks[0].Album.Name != "With Teeth" {
+        t.Fatalf("Error wrong album %v expected: With Teeth", tracks[0].Album.Name)
     }
 
     if tracks[0].Title != "The Line Begins to Blur" {

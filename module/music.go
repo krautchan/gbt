@@ -28,6 +28,8 @@ func (m *MusicModule) Load() error {
         user := map[string]string{"AlphaBernd": "rj"}
         m.SetConfigValue("lfm_map", user)
         m.SetConfigValue("lfm_default", "AlphaBernd")
+        m.SetConfigValue("lfm_api_key", "ad1ec2d483b70a07fb105b177361027b")
+        m.SetConfigValue("lfm_api_secret", "8f18ad782dc8e013cb3dc4d8a0bdc73b")
     }
 
     log.Println("Loaded MusicModule")
@@ -40,29 +42,45 @@ func (m *MusicModule) GetCommands() map[string]string {
 }
 
 func (m *MusicModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
-    user, _ := m.GetConfigStringValue("lfm_default")
-    msg := user
 
-    if len(params) > 0 {
-        user = params[0]
-        msg = params[0]
-    }
+    switch cmd {
+    case "np":
+        user, _ := m.GetConfigStringValue("lfm_default")
+        msg := user
 
-    if lfmmap, err := m.GetConfigMapValue("lfm_map"); err == nil {
-        lfu, ok := lfmmap[user]
-        if ok {
-            user = lfu
+        if len(params) > 0 {
+            user = params[0]
+            msg = params[0]
         }
-    }
 
-    tracks, err := lastfm.GetRecentTracks(user)
-    if err != nil {
-        return
-    }
+        if lfmmap, err := m.GetConfigMapValue("lfm_map"); err == nil {
+            lfu, ok := lfmmap[user]
+            if ok {
+                user = lfu
+            }
+        }
 
-    if tracks[0].NowPlaying {
-        c <- m.Reply(srvMsg, msg+" is listening to "+tracks[0].Artist+" - "+tracks[0].Title)
-    } else {
-        c <- m.Reply(srvMsg, msg+" last listened to "+tracks[0].Artist+" - "+tracks[0].Title+" ("+tracks[0].Date.LocalTime().Format(time.RFC1123)+")")
+        key, err := m.GetConfigStringValue("lfm_api_key")
+        if err != nil {
+            return
+        }
+
+        secret, err := m.GetConfigStringValue("lfm_api_secret")
+        if err != nil {
+            return
+        }
+
+        lfm := lastfm.NewLastFM(key, secret)
+
+        tracks, err := lfm.GetRecentTracks(user)
+        if err != nil {
+            return
+        }
+
+        if tracks[0].NowPlaying {
+            c <- m.Reply(srvMsg, msg+" is listening to "+tracks[0].Artist.Name+" - "+tracks[0].Title)
+        } else {
+            c <- m.Reply(srvMsg, msg+" last listened to "+tracks[0].Artist.Name+" - "+tracks[0].Title+" ("+tracks[0].Date.LocalTime().Format(time.RFC1123)+")")
+        }
     }
 }
