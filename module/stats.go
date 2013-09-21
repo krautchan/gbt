@@ -13,6 +13,7 @@ import (
 
     "fmt"
     "log"
+    "regexp"
     "strconv"
     "strings"
 )
@@ -71,10 +72,8 @@ func (self *StatsModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan ir
 
             t, _ = strconv.Atoi(stats["emo"])
             for _, w := range words {
-                for _, v := range []string{";_;", ":D", ";D", ":)", ";)", ":-D", ";-D", ":-)", ";-D", ":(", ":-(", ":3"} {
-                    if v == w {
-                        t++
-                    }
+                if isEmo(w) {
+                    t++
                 }
             }
             stats["emo"] = strconv.Itoa(t)
@@ -123,4 +122,21 @@ func (self *StatsModule) ExecuteCommand(cmd string, params []string, srvMsg *irc
         c <- self.Reply(srvMsg, fmt.Sprintf("Stats for %v: Lines: %v; Words: %v; Emoticons: %v; Joins: %v; Parts: %v; Kicks: %v",
             params[0], stats["line"], stats["word"], stats["emo"], stats["join"], stats["part"], stats["kick"]))
     }
+}
+
+// written by Rosenmann
+func isEmo(w string) bool {
+    //almost all possible emoticons
+    isVertical, _ := regexp.MatchString("[:;=xX]-*[\\>\\<\\[\\]\\*\\?\\(\\)\\|\\\\/CDEIOPQSVXcdeiopqsvx3]", w)
+    if isVertical {
+        return true
+    }
+
+    //only ;_; and ;-; so far
+    isHorizontal, _ := regexp.MatchString(";((_+)|-);", w)
+    if isHorizontal {
+        return true
+    }
+
+    return false
 }

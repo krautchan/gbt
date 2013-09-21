@@ -115,15 +115,18 @@ func (self *DefaultModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan 
 
 func (self *DefaultModule) GetCommands() map[string]string {
     return map[string]string{
-        "whoami":  "- Tells you who you are",
-        "help":    "[COMMAND] - Show help",
-        "version": "Send current running gbt version"}
+        "whoami":       "- Tells you who you are",
+        "help":         "[COMMAND] - Show help",
+        "version":      "Send current running gbt version",
+        "contributors": "List contributors to gbt"}
 }
 
 func (self *DefaultModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
     switch cmd {
     case "version":
         c <- self.Reply(srvMsg, config.Version)
+    case "contributors":
+        c <- self.Reply(srvMsg, "Contributors: AlphaBernd, Rosenmann")
     case "whoami":
         c <- self.Reply(srvMsg, srvMsg.From())
     case "help":
