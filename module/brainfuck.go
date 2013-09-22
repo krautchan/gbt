@@ -47,7 +47,7 @@ func (self *BrainfuckModule) GetCommands() map[string]string {
         "bf.add":  "SOURCE - Add source to your source cache",
         "bf.prt":  "- Print the contents of your cache",
         "bf.rst":  "- Reset your cache",
-        "bf.exec": "[INPUT] - Run you cache with the given INPUT",
+        "bf.exec": "[INPUT] - Run your cache with the given INPUT",
         "bf.set":  "NAME SOURCE - Create global code variables that can be used within bf-source as %NAME%",
         "bf.del":  "NAME - Remove global code variable",
         "bf.list": "- List all available variables"}
@@ -82,7 +82,15 @@ func (self *BrainfuckModule) ExecuteCommand(cmd string, params []string, srvMsg 
         }
 
         if len(output) > 0 {
-            c <- self.Reply(srvMsg, fmt.Sprintf("%q", output))
+            msg := ""
+            for i := range output {
+                if output[i] == 0 || output[i] == 10 || output[i] == 13 {
+                    msg += fmt.Sprintf("%q", output[i])
+                } else {
+                    msg += fmt.Sprintf("%c", output[i])
+                }
+            }
+            c <- self.Reply(srvMsg, msg)
         }
     case "bf.add":
         if len(params) == 0 {
@@ -123,7 +131,15 @@ func (self *BrainfuckModule) ExecuteCommand(cmd string, params []string, srvMsg 
         }
 
         if len(output) > 0 {
-            c <- self.Reply(srvMsg, fmt.Sprintf("%q", output))
+            msg := ""
+            for i := range output {
+                if output[i] == 0 || output[i] == 10 || output[i] == 13 {
+                    msg += fmt.Sprintf("%q", output[i])
+                } else {
+                    msg += fmt.Sprintf("%c", output[i])
+                }
+            }
+            c <- self.Reply(srvMsg, msg)
         }
     case "bf.set":
         if len(params) < 2 {
