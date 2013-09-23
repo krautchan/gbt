@@ -13,6 +13,8 @@ import (
     "github.com/krautchan/gbt/net/irc"
 
     "log"
+    "net/http"
+    "net/url"
     "strings"
 )
 
@@ -27,7 +29,9 @@ func NewPushModule() *PushModule {
 func (p *PushModule) Load() error {
     if err := p.InitConfig("push.conf"); err != nil {
         conf := map[string]string{"user": "GFHnF1bRmB3yuabwuijubshC2ZkodB", "token": "BfCyoo5qd9Rtwub7ZKw2znWDfkpuap"}
+        blog := map[string]string{"password": "hdoiad98qdn", "url": "https://blog.xxxxxxxxxx.eu", "title": "IRC POST"}
         p.SetConfigValue("pushover", conf)
+        p.SetConfigValue("blog", blog)
     }
 
     log.Println("Loaded PushModule")
@@ -36,7 +40,8 @@ func (p *PushModule) Load() error {
 
 func (p *PushModule) GetCommands() map[string]string {
     return map[string]string{
-        "push": "MESSAGE - Push MESSAGE to pushover"}
+        "push": "MESSAGE - Push MESSAGE to pushover",
+        "blog": "MESSAGE - Post MESSAGE to your blog"}
 }
 
 func (p *PushModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
@@ -73,6 +78,49 @@ func (p *PushModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.Pri
         err = push.Pushover(pmsg)
         if err != nil {
             log.Printf("PushModuler: %v", err)
+        }
+    case "blog":
+        if !p.IsIdentified(srvMsg.From()) {
+            return
+        }
+
+        if len(params) == 0 {
+            return
+        }
+
+        msg := strings.Join(params, " ")
+        conf, err := p.GetConfigMapValue("blog")
+        if err != nil {
+            log.Printf("PushModule: %v", err)
+            return
+        }
+
+        u, ok := conf["url"]
+        if !ok {
+            log.Println("PushModule: Blog url not set")
+            return
+        }
+
+        pw, ok := conf["password"]
+        if !ok {
+            log.Println("PushModule: Blog password not set")
+            return
+        }
+
+        title, ok := conf["title"]
+        if !ok {
+            log.Println("PushModule: Blog title not set")
+            return
+        }
+
+        res, err := http.PostForm(u, url.Values{"a": {pw}, "method": {"add"}, "title": {title}, "text": {msg}})
+        if err != nil {
+            return
+        }
+        defer res.Body.Close()
+
+        if res.StatusCode == 200 {
+            c <- p.Reply(srvMsg, "Success")
         }
     }
 }
