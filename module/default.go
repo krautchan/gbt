@@ -144,7 +144,10 @@ func (self *DefaultModule) ExecuteCommand(cmd string, params []string, srvMsg *i
                 }
             }
 
-            c <- self.Reply(srvMsg, msg)
+            cmsg := self.ReplyMultiLine(srvMsg, msg)
+            for _, v := range cmsg {
+                c <- v
+            }
         } else {
             for i := range self.comex {
                 cmd := self.comex[i].GetCommands()

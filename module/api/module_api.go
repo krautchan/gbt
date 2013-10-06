@@ -179,6 +179,21 @@ func (self *ModuleApi) Reply(srvMsg *irc.PrivateMessage, text string) irc.Client
     return msg
 }
 
+func (self *ModuleApi) ReplyMultiLine(srvMsg *irc.PrivateMessage, text string) []irc.ClientMessage {
+    start := 0
+
+    msg := []irc.ClientMessage{}
+
+    for len(text[start:]) > 400 {
+        msg = append(msg, self.Reply(srvMsg, text[start:start+400]))
+        start += 400
+    }
+
+    msg = append(msg, self.Reply(srvMsg, text[start:]))
+
+    return msg
+}
+
 // Raw creates a message that is send "as is" to the server
 func (self *ModuleApi) Raw(msg string) irc.ClientMessage {
     return &irc.RawMessage{Message: msg}
