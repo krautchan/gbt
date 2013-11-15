@@ -32,6 +32,7 @@ type ResponseData struct {
 type Result struct {
     Url   string `json:"url"`
     Title string `json:"titleNoFormatting"`
+    UUrl  string `json:"unescapedUrl"`
 }
 
 type WebModule struct {
@@ -78,7 +79,7 @@ func (self *WebModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.P
         if len(r.ResponseData.Results) > 0 {
             c <- self.Reply(srvMsg, fmt.Sprintf("Results for \"%s\"", strings.Join(params, " ")))
             for i, v := range r.ResponseData.Results {
-                c <- self.Reply(srvMsg, fmt.Sprintf("Item[%d]: %s(%s)", i, v.Title, v.Url))
+                c <- self.Reply(srvMsg, fmt.Sprintf("Item[%d]: %s(%s)", i, v.Title, v.UUrl))
             }
         }
     }
