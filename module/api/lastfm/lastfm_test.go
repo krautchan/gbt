@@ -42,8 +42,8 @@ func TestGetInfo(t *testing.T) {
     if user.Playcount != 4207 {
         t.Fatalf("Error wrong playcount %v expected 4207", user.Playcount)
     }
-    if user.Type != "subscriber" {
-        t.Fatalf("Error wrong type: %v expected: subscriber", user.Type)
+    if user.Type != "user" {
+        t.Fatalf("Error wrong type: %v expected: user", user.Type)
     }
 }
 
