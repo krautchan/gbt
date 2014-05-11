@@ -12,7 +12,7 @@ import (
 )
 
 func TestYandexTranslate(t *testing.T) {
-    tests := map[string]string{"Das Haus der Maus gehört eigentlich einer Laus": "The house mouse is actually a louse", "Взрывом разрушило три квартиры и несколько межэтажных перекрытий, также оказалась повреждена часть фасада здания, а в соседних домах выбило стекла и балконные рамы": "The explosion destroyed three apartments and a few interfloor overlappings, was also damaged part of the facade of the building, and in the neighboring houses smashed glass and balcony frames"} //Don't ask... It's machine translation
+    tests := map[string]string{"Das Haus der Maus gehört eigentlich einer Laus": "The house mouse is actually a louse", "Взрывом разрушило три квартиры и несколько межэтажных перекрытий, также оказалась повреждена часть фасада здания, а в соседних домах выбило стекла и балконные рамы": "The explosion destroyed three apartments and a few of the floors were damaged part of the facade of the building, and in the neighboring houses smashed Windows and balcony frames"} //Don't ask... It's machine translation
 
     for k, v := range tests {
         ret, err := YandexTranslate(k, "en")
