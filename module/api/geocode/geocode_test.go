@@ -21,8 +21,8 @@ func TestFetchGeocode(t *testing.T) {
         t.Fatal("Geo result are empty")
     }
 
-    if geo.Results[0].Geometry.Location.Lat != 52.5191710 {
-        t.Fatalf("Expected latidute of 52.5191710 got %v", geo.Results[0].Geometry.Location.Lat)
+    if geo.Results[0].Geometry.Location.Lat != 52.52000659999999 {
+        t.Fatalf("Expected latidute of 52.52000659999999 got %v", geo.Results[0].Geometry.Location.Lat)
     }
 }
 
@@ -32,11 +32,11 @@ func TestGetLocation(t *testing.T) {
         t.Fatalf("%v", err)
     }
 
-    if lat != 52.5191710 {
-        t.Fatalf("Expected latidute of 52.5191710 got %v", lat)
+    if lat != 52.52000659999999 {
+        t.Fatalf("Expected latidute of 52.52000659999999 got %v", lat)
     }
 
-    if lng != 13.40609120 {
-        t.Fatalf("Expected longtitude of 13.40609120 got %v", lng)
+    if lng != 13.404954 {
+        t.Fatalf("Expected longtitude of 13.404954 got %v", lng)
     }
 }
