@@ -72,22 +72,49 @@ func (self *SeenModule) formatDuration(dur time.Duration) (str string) {
 
 func (self *SeenModule) GetCommands() map[string]string {
     return map[string]string{
-        "seen": "NICKNAME - Tells you when NICKNAME was seen the last time by the bot"}
+        "seen": "NICKNAME - Tells you when NICKNAME was seen the last time by the bot",
+        "last": "Show the last active user"}
 }
 
 func (self *SeenModule) ExecuteCommand(cmd string, params []string, srvMsg *irc.PrivateMessage, c chan irc.ClientMessage) {
-    if len(params) > 0 {
-        for _, v := range params {
+    switch cmd {
+    case "last":
+        nicknames := self.GetConfigKeys()
+
+        var nick string = ""
+        var ti int64 = 0
+        var msg string = ""
+
+        for _, v := range nicknames {
             if sl, err := self.GetConfigStringSliceValue(v); err == nil {
                 t, e := strconv.ParseInt(sl[0], 10, 64)
                 if e != nil {
                     return
                 }
-                dur := time.Since(time.Unix(t, 0))
+                if t > ti {
+                    nick = v
+                    ti = t
+                    msg = sl[1]
+                }
+            }
+        }
 
-                c <- self.Reply(srvMsg, fmt.Sprintf("%v was last seen%v ago: %v", v, self.formatDuration(dur), sl[1]))
-            } else {
-                log.Printf("%v", err)
+        dur := time.Since(time.Unix(ti, 0))
+        c <- self.Reply(srvMsg, fmt.Sprintf("%v was the last seen user%v ago: %v", nick, self.formatDuration(dur), msg))
+    case "seen":
+        if len(params) > 0 {
+            for _, v := range params {
+                if sl, err := self.GetConfigStringSliceValue(v); err == nil {
+                    t, e := strconv.ParseInt(sl[0], 10, 64)
+                    if e != nil {
+                        return
+                    }
+                    dur := time.Since(time.Unix(t, 0))
+
+                    c <- self.Reply(srvMsg, fmt.Sprintf("%v was last seen%v ago: %v", v, self.formatDuration(dur), sl[1]))
+                } else {
+                    log.Printf("%v", err)
+                }
             }
         }
     }
