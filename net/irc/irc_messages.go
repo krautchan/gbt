@@ -50,6 +50,14 @@ func (r *RawMessage) String() string {
     return r.Message
 }
 
+type PassMessage struct {
+    Password string
+}
+
+func (p *PassMessage) String() string {
+    return fmt.Sprintf("PASS %s", p.Password)
+}
+
 type PrivateMessage struct {
     Target string
     Text   string

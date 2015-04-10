@@ -60,7 +60,11 @@ func (self *DefaultModule) HandleServerMessage(srvMsg irc.ServerMessage, c chan 
         user, _ := self.GetConfigStringValue("Username") // Error checking should be done
         nick, _ := self.GetConfigStringValue("Nickname")
         name, _ := self.GetConfigStringValue("Realname")
+        pass, err := self.GetConfigStringValue("ServerPassword")
 
+        if err == nil {
+            c <- self.Pass(pass)
+        }
         c <- self.Nick(nick)
         c <- self.Raw(fmt.Sprintf("User %s 0 * :%s", user, name))
     case *irc.NumericMessage:

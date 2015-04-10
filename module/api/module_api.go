@@ -224,6 +224,11 @@ func (self *ModuleApi) Part(channel string) irc.ClientMessage {
     return &irc.PartMessage{Channel: channel}
 }
 
+// Create a Pass message
+func (self *ModuleApi) Pass(pass string) irc.ClientMessage {
+    return &irc.PassMessage{Password: pass}
+}
+
 // Kick create a Kick message
 func (m *ModuleApi) Kick(channel, user, reason string) irc.ClientMessage {
     return &irc.KickMessage{Channel: channel, Nickname: user, Reason: reason}
